@@ -33,8 +33,8 @@ protected:
 class Circle : public PhysicEntity
 {
 public:
-	Circle(ModulePhysics* physics, int _x, int _y, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateCircle(_x, _y, 25), _listener)
+	Circle(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture)
+		: PhysicEntity(physics->CreateCircle(_x, _y, radious), _listener)
 		, texture(_texture)
 	{
 
@@ -87,74 +87,14 @@ private:
 
 };
 
-class Map : public PhysicEntity
+class Shape : public PhysicEntity
 {
 public:
 	// Pivot 0, 0
-	static constexpr int pinballCoquete[116] = {
-	540, 0,
-	540, 720,
-	401, 720,
-	464, 676,
-	463, 540,
-	445, 520,
-	445, 485,
-	467, 460,
-	481, 423,
-	481, 107,
-	478, 95,
-	470, 88,
-	458, 83,
-	447, 86,
-	435, 92,
-	422, 98,
-	408, 106,
-	401, 101,
-	404, 91,
-	414, 81,
-	425, 71,
-	440, 57,
-	454, 53,
-	469, 56,
-	485, 65,
-	496, 77,
-	503, 95,
-	506, 109,
-	506, 540,
-	540, 540,
-	540, 0,
-	0, 0,
-	1, 720,
-	106, 720,
-	41, 679,
-	41, 531,
-	61, 505,
-	61, 431,
-	35, 402,
-	25, 374,
-	22, 354,
-	22, 231,
-	38, 203,
-	41, 165,
-	47, 112,
-	58, 75,
-	72, 48,
-	91, 28,
-	109, 16,
-	133, 9,
-	477, 9,
-	496, 17,
-	510, 30,
-	522, 46,
-	529, 65,
-	534, 86,
-	540, 120,
-	540, 540
-	};
 
 
-	Map(ModulePhysics* physics, int _x, int _y, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateChain(_x , _y , pinballCoquete, 116), _listener)
+	Shape(ModulePhysics* physics, int _x, int _y, int points[], int numberOfPoints, Module* _listener, Texture2D _texture)
+		: PhysicEntity(physics->CreateChain(_x , _y , points, numberOfPoints), _listener)
 		, texture(_texture)
 	{
 
@@ -188,15 +128,143 @@ bool ModuleGame::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	pimball_map = LoadTexture("Assets/PinballCoquete1.png");
-	circle = LoadTexture("Assets/wheel.png"); 
+	pimball_map = LoadTexture("Assets/map.png");
+	circle = LoadTexture("Assets/bola.png"); 
 	box = LoadTexture("Assets/crate.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
 	
-	entities.emplace_back(new Map(App->physics, 0, 0, this, pimball_map));
+	//MAP
+	int map[82] = {
+	480, 0,
+	480, 640,
+	360, 640,
+	413, 605,
+	413, 475,
+	406, 463,
+	397, 458,
+	397, 433,
+	416, 414,
+	429, 379,
+	429, 84,
+	421, 71,
+	402, 65,
+	367, 87,
+	355, 88,
+	393, 51,
+	417, 52,
+	438, 66,
+	447, 95,
+	447, 480,
+	480, 480,
+	480, 70,
+	474, 41,
+	453, 15,
+	432, 5,
+	98, 5,
+	76, 16,
+	54, 42,
+	35, 95,
+	30, 151,
+	30, 178,
+	18, 192,
+	18, 325,
+	27, 355,
+	52, 383,
+	52, 443,
+	33, 465,
+	33, 605,
+	88, 640,
+	0, 640,
+	0, 0
+	};
+
+	int map1[36] = {
+	295, 283,
+	351, 256,
+	371, 233,
+	373, 191,
+	373, 146,
+	381, 141,
+	389, 141,
+	395, 147,
+	395, 183,
+	395, 284,
+	395, 348,
+	388, 355,
+	377, 356,
+	311, 311,
+	300, 311,
+	304, 302,
+	303, 291,
+	299, 286
+	};
+
+	int map2[42] = {
+	82, 206,
+	90, 216,
+	102, 255,
+	117, 269,
+	154, 284,
+	141, 287,
+	141, 301,
+	155, 315,
+	144, 316,
+	106, 352,
+	76, 327,
+	81, 313,
+	69, 298,
+	80, 279,
+	69, 273,
+	69, 266,
+	81, 248,
+	68, 240,
+	67, 231,
+	73, 226,
+	73, 212
+	};
+
+	int map3[20] = {
+	65, 133,
+	66, 115,
+	74, 84,
+	96, 47,
+	106, 42,
+	118, 41,
+	128, 48,
+	144, 61,
+	145, 75,
+	74, 142
+	};
+
+	int map4[14] = {
+	76, 523,
+	82, 517,
+	90, 522,
+	90, 571,
+	155, 604,
+	137, 607,
+	77, 578
+	};
+
+	int map5[14] = {
+	292, 604,
+	357, 571,
+	357, 523,
+	363, 520,
+	370, 525,
+	370, 576,
+	307, 605
+	};
+
+	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
 	return ret;
 }
@@ -221,18 +289,13 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_ONE))
 	{
-		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), this, circle));
+		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width/2, this, circle));
 		
 	}
 
 	if(IsKeyPressed(KEY_TWO))
 	{
 		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), this, box));
-	}
-
-	if(IsKeyPressed(KEY_THREE))
-	{
-		entities.emplace_back(new Map(App->physics, GetMouseX(), GetMouseY(), this, pimball_map));
 	}
 
 	// Prepare for raycast ------------------------------------------------------
