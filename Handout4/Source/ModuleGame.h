@@ -30,9 +30,9 @@ public:
 	PhysBody* sensor;
 	bool sensed;
 
+	Texture2D pimball_map;
 	Texture2D circle;
 	Texture2D box;
-	Texture2D rick;
 
 	uint32 bonus_fx;
 

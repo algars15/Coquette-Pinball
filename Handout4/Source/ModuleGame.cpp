@@ -87,47 +87,74 @@ private:
 
 };
 
-class Rick : public PhysicEntity
+class Map : public PhysicEntity
 {
 public:
 	// Pivot 0, 0
-	static constexpr int rick_head[64] = {
-			14, 36,
-			42, 40,
-			40, 0,
-			75, 30,
-			88, 4,
-			94, 39,
-			111, 36,
-			104, 58,
-			107, 62,
-			117, 67,
-			109, 73,
-			110, 85,
-			106, 91,
-			109, 99,
-			103, 104,
-			100, 115,
-			106, 121,
-			103, 125,
-			98, 126,
-			95, 137,
-			83, 147,
-			67, 147,
-			53, 140,
-			46, 132,
-			34, 136,
-			38, 126,
-			23, 123,
-			30, 114,
-			10, 102,
-			29, 90,
-			0, 75,
-			30, 62
+	static constexpr int pinballCoquete[116] = {
+	540, 0,
+	540, 720,
+	401, 720,
+	464, 676,
+	463, 540,
+	445, 520,
+	445, 485,
+	467, 460,
+	481, 423,
+	481, 107,
+	478, 95,
+	470, 88,
+	458, 83,
+	447, 86,
+	435, 92,
+	422, 98,
+	408, 106,
+	401, 101,
+	404, 91,
+	414, 81,
+	425, 71,
+	440, 57,
+	454, 53,
+	469, 56,
+	485, 65,
+	496, 77,
+	503, 95,
+	506, 109,
+	506, 540,
+	540, 540,
+	540, 0,
+	0, 0,
+	1, 720,
+	106, 720,
+	41, 679,
+	41, 531,
+	61, 505,
+	61, 431,
+	35, 402,
+	25, 374,
+	22, 354,
+	22, 231,
+	38, 203,
+	41, 165,
+	47, 112,
+	58, 75,
+	72, 48,
+	91, 28,
+	109, 16,
+	133, 9,
+	477, 9,
+	496, 17,
+	510, 30,
+	522, 46,
+	529, 65,
+	534, 86,
+	540, 120,
+	540, 540
 	};
 
-	Rick(ModulePhysics* physics, int _x, int _y, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateChain(GetMouseX() - 50, GetMouseY() - 100, rick_head, 64), _listener)
+
+	Map(ModulePhysics* physics, int _x, int _y, Module* _listener, Texture2D _texture)
+		: PhysicEntity(physics->CreateChain(_x , _y , pinballCoquete, 116), _listener)
 		, texture(_texture)
 	{
 
@@ -139,11 +166,9 @@ public:
 		body->GetPhysicPosition(x, y);
 		DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
 	}
-
 private:
 	Texture2D texture;
 };
-
 
 
 ModuleGame::ModuleGame(Application* app, bool start_enabled) : Module(app, start_enabled)
@@ -163,13 +188,15 @@ bool ModuleGame::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
+	pimball_map = LoadTexture("Assets/PinballCoquete1.png");
 	circle = LoadTexture("Assets/wheel.png"); 
 	box = LoadTexture("Assets/crate.png");
-	rick = LoadTexture("Assets/rick_head.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
+	
+	entities.emplace_back(new Map(App->physics, 0, 0, this, pimball_map));
 
 	return ret;
 }
@@ -205,7 +232,7 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_THREE))
 	{
-		entities.emplace_back(new Rick(App->physics, GetMouseX(), GetMouseY(), this, rick));
+		entities.emplace_back(new Map(App->physics, GetMouseX(), GetMouseY(), this, pimball_map));
 	}
 
 	// Prepare for raycast ------------------------------------------------------
