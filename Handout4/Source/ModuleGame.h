@@ -33,6 +33,8 @@ public:
 	Texture2D pimball_map;
 	Texture2D circle;
 	Texture2D box;
+	Texture2D palancaTexture;
+	Texture2D palanca_invertida;
 
 	uint32 bonus_fx;
 

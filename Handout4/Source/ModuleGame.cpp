@@ -61,8 +61,8 @@ private:
 class Box : public PhysicEntity
 {
 public:
-	Box(ModulePhysics* physics, int _x, int _y, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateRectangle(_x, _y, 100, 50), _listener)
+	Box(ModulePhysics* physics, int _x, int _y, int w, int h, Module* _listener, Texture2D _texture)
+		: PhysicEntity(physics->CreateRectangle(_x, _y, w, h), _listener)
 		, texture(_texture)
 	{
 
@@ -131,6 +131,8 @@ bool ModuleGame::Start()
 	pimball_map = LoadTexture("Assets/map.png");
 	circle = LoadTexture("Assets/bola.png"); 
 	box = LoadTexture("Assets/crate.png");
+	palancaTexture = LoadTexture("Assets/palanca.png");
+	//palanca_invertida = LoadTexture("Assets/palanca_invertida.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
@@ -259,12 +261,41 @@ bool ModuleGame::Start()
 	307, 605
 	};
 
+	int palanca[20] = {
+	2, 0,
+	57, 0,
+	60, 3,
+	60, 16,
+	57, 20,
+	52, 19,
+	4, 12,
+	0, 8,
+	0, 3,
+	2, 0
+	};
+
+	//int palanca_inverted[20] = {
+	//3, 0,
+	//0, 2,
+	//0, 16,
+	//2, 20,
+	//7, 20,
+	//58, 11,
+	//60, 9,
+	//60, 5,
+	//58, 0,
+	//3, 0
+	//};
+
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
+
+	entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
+
 
 	return ret;
 }
@@ -280,6 +311,8 @@ bool ModuleGame::CleanUp()
 // Update: draw background
 update_status ModuleGame::Update()
 {
+	
+
 	if(IsKeyPressed(KEY_SPACE))
 	{
 		ray_on = !ray_on;
@@ -295,7 +328,7 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_TWO))
 	{
-		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), this, box));
+		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
 	}
 
 	// Prepare for raycast ------------------------------------------------------
