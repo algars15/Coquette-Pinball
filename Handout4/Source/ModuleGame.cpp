@@ -132,6 +132,8 @@ bool ModuleGame::Start()
 	circle = LoadTexture("Assets/bola.png"); 
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
+	springTop = LoadTexture("Assets/SpringTop.png");
+	springBottom = LoadTexture("Assets/SpringBottom.png");
 	//palanca_invertida = LoadTexture("Assets/palanca_invertida.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
@@ -295,6 +297,16 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
 	entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
+
+	mollaBottom = new Box(App->physics, 450 + springBottom.width/2, 480-springBottom.height/2, springBottom.width, springBottom.height, this, springBottom);
+	entities.emplace_back(mollaBottom);
+
+	mollaTop = new Box(App->physics, 450 + springBottom.width / 2, 480 - springBottom.height, springTop.width, springTop.height, this, springTop);
+	entities.emplace_back(mollaTop);
+
+	b2RevoluteJointDef jointMolla;
+	jointMolla.Initialize(mollaBottom, mollaTop, mollaBottom->GetWorldCenter());
+	
 
 
 	return ret;

@@ -10,6 +10,7 @@
 
 class PhysBody;
 class PhysicEntity;
+class Box;
 
 
 class ModuleGame : public Module
@@ -35,8 +36,13 @@ public:
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
+	Texture2D springTop;
+	Texture2D springBottom;
 
 	uint32 bonus_fx;
+
+	Box *mollaTop;
+	Box *mollaBottom;
 
 	vec2<int> ray;
 	bool ray_on;
