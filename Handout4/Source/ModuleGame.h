@@ -11,6 +11,12 @@
 class PhysBody;
 class PhysicEntity;
 
+class Box; 
+class Circle;
+class Shape;
+
+class b2RevoluteJoint;
+
 
 class ModuleGame : public Module
 {
@@ -35,8 +41,14 @@ public:
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
-	
-	
+
+	Box* palancaDerecha;
+	Box* palancaIzquierda;
+	Shape* unionPalancaDerecha;
+	Shape* unionPalancaIzquierda;
+
+	b2RevoluteJoint* jointPalancaIzquierda;
+
 	uint32 bonus_fx;
 
 	vec2<int> ray;

@@ -364,3 +364,19 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if(physB && physB->listener != NULL)
 		physB->listener->OnCollision(physB, physA);
 }
+
+b2RevoluteJoint* ModulePhysics::CreateWeldJoint(PhysBody* bodyA, PhysBody* bodyB)
+{
+	b2RevoluteJointDef jointDef;
+	jointDef.bodyA = bodyA->body;
+	jointDef.bodyB = bodyB->body;
+	jointDef.localAnchorA = bodyA->body->GetLocalCenter();
+	jointDef.localAnchorB = bodyB->body->GetLocalCenter();
+	jointDef.enableLimit = true;
+	jointDef.lowerAngle = -0.75f * b2_pi; 
+	jointDef.upperAngle = 0.75f * b2_pi; 
+
+
+	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
+	return joint;
+}

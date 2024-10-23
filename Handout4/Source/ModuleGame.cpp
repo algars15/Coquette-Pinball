@@ -25,7 +25,7 @@ public:
 		return 0;
 	}
 
-protected:
+public:
 	PhysBody* body;
 	Module* listener;
 };
@@ -283,11 +283,13 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
+	palancaIzquierda = new Box(App->physics, 215 - palanca_invertida.width / 2, 607 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida);
+	palancaDerecha = new Box(App->physics, 295 - palancaTexture.width / 2, 607 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture);
 
+	entities.emplace_back(palancaDerecha);
+	entities.emplace_back(palancaIzquierda);
 
-	entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
-	entities.emplace_back(new Box(App->physics, 215 - palanca_invertida.width / 2, 607+ palanca_invertida.height/2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida));
-
+	jointPalancaIzquierda = App->physics->CreateWeldJoint(palancaIzquierda->body, palancaDerecha->body);
 
 	return ret;
 }

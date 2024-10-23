@@ -50,6 +50,8 @@ public:
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, const int* points, int size);
 
+	b2RevoluteJoint* CreateWeldJoint(PhysBody* bodyA, PhysBody* bodyB);
+
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
 
