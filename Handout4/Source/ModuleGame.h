@@ -35,7 +35,8 @@ public:
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
-
+	
+	
 	uint32 bonus_fx;
 
 	vec2<int> ray;

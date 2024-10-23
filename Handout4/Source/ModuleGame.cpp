@@ -132,7 +132,7 @@ bool ModuleGame::Start()
 	circle = LoadTexture("Assets/bola.png"); 
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
-	//palanca_invertida = LoadTexture("Assets/palanca_invertida.png");
+	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
@@ -274,18 +274,7 @@ bool ModuleGame::Start()
 	2, 0
 	};
 
-	//int palanca_inverted[20] = {
-	//3, 0,
-	//0, 2,
-	//0, 16,
-	//2, 20,
-	//7, 20,
-	//58, 11,
-	//60, 9,
-	//60, 5,
-	//58, 0,
-	//3, 0
-	//};
+
 
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
@@ -294,7 +283,10 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
+
+
 	entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
+	entities.emplace_back(new Box(App->physics, 215 - palanca_invertida.width / 2, 607+ palanca_invertida.height/2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida));
 
 
 	return ret;
