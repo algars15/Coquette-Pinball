@@ -261,19 +261,49 @@ bool ModuleGame::Start()
 	307, 605
 	};
 
-	int palanca[20] = {
-	2, 0,
-	57, 0,
-	60, 3,
-	60, 16,
-	57, 20,
-	52, 19,
-	4, 12,
-	0, 8,
-	0, 3,
-	2, 0
+	int map6[12] = {
+	169, 399,
+	169, 353,
+	176, 348,
+	182, 353,
+	182, 398,
+	175, 404
+	};
+	int map7[14] = {
+	216, 354,
+	223, 347,
+	230, 353,
+	231, 395,
+	223, 403,
+	217, 395,
+	216, 355
 	};
 
+	int map8[14] = {
+	264, 357,
+	271, 347,
+	278, 354,
+	278, 395,
+	272, 401,
+	265, 395,
+	265, 358
+	};
+	int map9[10] = {
+	289, 542,
+	315, 497,
+	321, 500,
+	320, 528,
+	297, 544
+	};
+	int map10[10] = {
+	154, 546,
+	125, 530,
+	125, 500,
+	133, 496,
+	160, 540,
+	};
+
+	
 
 
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
@@ -282,6 +312,11 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map6, 12, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map7, 14, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
 
 
 
