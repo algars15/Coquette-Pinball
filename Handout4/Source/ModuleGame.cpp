@@ -137,6 +137,7 @@ bool ModuleGame::Start()
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
+	velocitatPalanca = 30;
 	
 	//MAP
 	int map[82] = {
@@ -274,8 +275,6 @@ bool ModuleGame::Start()
 	2, 0
 	};
 
-
-
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
@@ -284,15 +283,26 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
 	palancaIzquierda = new Box(App->physics, 215 - palanca_invertida.width / 2, 607 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida);
-	palancaDerecha = new Box(App->physics, 295 - palancaTexture.width / 2, 607 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture);
+	palancaDerecha = new Box(App->physics, 295 - palancaTexture.width / 2, 607 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture); 
+
+	palancaIzquierda->body->body->SetGravityScale(0);
+	palancaDerecha->body->body->SetGravityScale(0);
 
 	entities.emplace_back(palancaDerecha);
 	entities.emplace_back(palancaIzquierda);
 
-	jointPalancaIzquierda = App->physics->CreateWeldJoint(palancaIzquierda->body, palancaDerecha->body);
+	unionPalancaIzquierda = App->physics->CreateCircle(215 - palanca_invertida.width, 607, 3, b2BodyType::b2_staticBody);
+	unionPalancaDerecha = App->physics->CreateCircle(295, 607, 3, b2BodyType::b2_staticBody);
+
+	jointPalancaIzquierda = App->physics->CreateRevoluteJoint(palancaIzquierda->body, unionPalancaIzquierda, unionPalancaIzquierda->body->GetWorldCenter(), { -0.30, 0.30 });
+	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.30, 0.30 });
+
+	
+
 
 	return ret;
 }
+
 
 // Load assets
 bool ModuleGame::CleanUp()
@@ -305,8 +315,6 @@ bool ModuleGame::CleanUp()
 // Update: draw background
 update_status ModuleGame::Update()
 {
-	
-
 	if(IsKeyPressed(KEY_SPACE))
 	{
 		ray_on = !ray_on;
@@ -324,6 +332,10 @@ update_status ModuleGame::Update()
 	{
 		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
 	}
+
+	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
+	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
+
 
 	// Prepare for raycast ------------------------------------------------------
 	
@@ -367,6 +379,16 @@ update_status ModuleGame::Update()
 	}
 
 	return UPDATE_CONTINUE;
+}
+
+void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right)
+{
+	if (isPressed) {
+		joint->SetMotorSpeed(right ? -velocitatPalanca : velocitatPalanca);
+	}
+	else {
+		joint->SetMotorSpeed(right ? velocitatPalanca : -velocitatPalanca);
+	}
 }
 
 void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB)

@@ -59,12 +59,12 @@ update_status ModulePhysics::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colliderType)
 {
 	PhysBody* pbody = new PhysBody();
 
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = colliderType;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
 
@@ -99,7 +99,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 
 	b2FixtureDef fixture;
 	fixture.shape = &box;
-	fixture.density = 0.0f;
+	fixture.density = 1.0f;
 
 	b->CreateFixture(&fixture);
 
@@ -143,7 +143,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
 	PhysBody* pbody = new PhysBody();
 
 	b2BodyDef body;
-	body.type = b2_dynamicBody;
+	body.type = b2_staticBody;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
 
@@ -365,18 +365,16 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 		physB->listener->OnCollision(physB, physA);
 }
 
-b2RevoluteJoint* ModulePhysics::CreateWeldJoint(PhysBody* bodyA, PhysBody* bodyB)
+b2RevoluteJoint* ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, b2Vec2 anchor, b2Vec2 angle)
 {
 	b2RevoluteJointDef jointDef;
-	jointDef.bodyA = bodyA->body;
-	jointDef.bodyB = bodyB->body;
-	jointDef.localAnchorA = bodyA->body->GetLocalCenter();
-	jointDef.localAnchorB = bodyB->body->GetLocalCenter();
+	jointDef.Initialize(bodyA->body, bodyB->body, anchor);
 	jointDef.enableLimit = true;
-	jointDef.lowerAngle = -0.75f * b2_pi; 
-	jointDef.upperAngle = 0.75f * b2_pi; 
-
-
+	jointDef.lowerAngle = angle.x;
+	jointDef.upperAngle = angle.y;
+	jointDef.enableMotor = true;
+	jointDef.motorSpeed = 0.0f;
+	jointDef.maxMotorTorque = 100.0f;  // Ajusta según se requiera
 	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 	return joint;
 }

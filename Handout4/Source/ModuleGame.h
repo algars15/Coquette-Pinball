@@ -28,6 +28,7 @@ public:
 	update_status Update();
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+	void UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right);
 
 public:
 
@@ -44,13 +45,15 @@ public:
 
 	Box* palancaDerecha;
 	Box* palancaIzquierda;
-	Shape* unionPalancaDerecha;
-	Shape* unionPalancaIzquierda;
+	PhysBody* unionPalancaDerecha;
+	PhysBody* unionPalancaIzquierda;
 
 	b2RevoluteJoint* jointPalancaIzquierda;
+	b2RevoluteJoint* jointPalancaDerecha;
 
 	uint32 bonus_fx;
 
 	vec2<int> ray;
 	bool ray_on;
+	int velocitatPalanca;
 };
