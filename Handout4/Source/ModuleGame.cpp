@@ -307,6 +307,7 @@ bool ModuleGame::Start()
 	
 	shooter = new Box(App->physics, 450+springTop.width/2,475-springBottom.height, springTop.width, springTop.height, this, springTop);
 	entities.emplace_back(shooter);
+	shooter->body->body->SetGravityScale(0);
 	
 	//shooterInitPos = shooter->body->GetWorldCenter();
 	//shooter->listener = this;
@@ -390,16 +391,16 @@ update_status ModuleGame::Update()
 		}
 	}
 
-	if (IsKeyPressed(KEY_DOWN)) {
+	if (IsKeyDown(KEY_DOWN)) {
 		if (distancia < 475)
 		{
 			distancia++;
 			LOG("DISTANCE: %f", distancia);
 			shooter->body->body->SetLinearVelocity(b2Vec2(0, distancia));
 		}
-		if (distancia >= 475) {
+		/*if (distancia >= 475) {
 			shooter->body->body->SetLinearVelocity(b2Vec2(0, 0));
-		}
+		}*/
 	}
 
 	return UPDATE_CONTINUE;
