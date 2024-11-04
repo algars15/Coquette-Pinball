@@ -33,8 +33,8 @@ public:
 class Circle : public PhysicEntity
 {
 public:
-	Circle(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateCircle(_x, _y, radious), _listener)
+	Circle(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
+		: PhysicEntity(physics->CreateCircle(_x, _y, radious, colliderType, objectType), _listener)
 		, texture(_texture)
 	{
 
@@ -61,8 +61,8 @@ private:
 class Box : public PhysicEntity
 {
 public:
-	Box(ModulePhysics* physics, int _x, int _y, int w, int h, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateRectangle(_x, _y, w, h), _listener)
+	Box(ModulePhysics* physics, int _x, int _y, int w, int h, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
+		: PhysicEntity(physics->CreateRectangle(_x, _y, w, h, colliderType, objectType), _listener)
 		, texture(_texture)
 	{
 
@@ -93,8 +93,8 @@ public:
 	// Pivot 0, 0
 
 
-	Shape(ModulePhysics* physics, int _x, int _y, int points[], int numberOfPoints, Module* _listener, Texture2D _texture)
-		: PhysicEntity(physics->CreateChain(_x , _y , points, numberOfPoints), _listener)
+	Shape(ModulePhysics* physics, int _x, int _y, int points[], int numberOfPoints, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN,  b2BodyType colliderType = b2_dynamicBody)
+		: PhysicEntity(physics->CreateChain(_x , _y , points, numberOfPoints, colliderType, objectType), _listener)
 		, texture(_texture)
 	{
 
@@ -136,10 +136,10 @@ bool ModuleGame::Start()
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
-	velocitatPalanca = 30;
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
+	velocitatPalanca = 20;
 	
-	//MAP
+	//MAPA
 	int map[82] = {
 	480, 0,
 	480, 640,
@@ -282,8 +282,9 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
-	palancaIzquierda = new Box(App->physics, 215 - palanca_invertida.width / 2, 607 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida);
-	palancaDerecha = new Box(App->physics, 295 - palancaTexture.width / 2, 607 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture); 
+	//PALANCAS
+	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, PALANCA);
+	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, PALANCA); 
 
 	palancaIzquierda->body->body->SetGravityScale(0);
 	palancaDerecha->body->body->SetGravityScale(0);
@@ -291,14 +292,13 @@ bool ModuleGame::Start()
 	entities.emplace_back(palancaDerecha);
 	entities.emplace_back(palancaIzquierda);
 
-	unionPalancaIzquierda = App->physics->CreateCircle(215 - palanca_invertida.width, 607, 3, b2BodyType::b2_staticBody);
-	unionPalancaDerecha = App->physics->CreateCircle(295, 607, 3, b2BodyType::b2_staticBody);
+	unionPalancaIzquierda = App->physics->CreateCircle(210 - palanca_invertida.width, 604, 3, b2BodyType::b2_staticBody);
+	unionPalancaDerecha = App->physics->CreateCircle(298, 604, 3, b2BodyType::b2_staticBody);
 
-	jointPalancaIzquierda = App->physics->CreateRevoluteJoint(palancaIzquierda->body, unionPalancaIzquierda, unionPalancaIzquierda->body->GetWorldCenter(), { -0.30, 0.30 });
-	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.30, 0.30 });
+	jointPalancaIzquierda = App->physics->CreateRevoluteJoint(palancaIzquierda->body, unionPalancaIzquierda, unionPalancaIzquierda->body->GetWorldCenter(), { -0.50, 0.50 });
+	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.50, 0.50 });
 
-	
-
+	//BOLAS REBOTADORAS
 
 	return ret;
 }
@@ -387,11 +387,19 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 		joint->SetMotorSpeed(right ? -velocitatPalanca : velocitatPalanca);
 	}
 	else {
-		joint->SetMotorSpeed(right ? velocitatPalanca : -velocitatPalanca);
+		joint->SetMotorSpeed(right ? velocitatPalanca/4 : -velocitatPalanca/4);
 	}
 }
 
 void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
-	App->audio->PlayFx(bonus_fx);
+	if (bodyA->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA)
+	{
+		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
+		switch (object->objectType)
+		{
+			default:
+				break;
+		}
+	}
 }

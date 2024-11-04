@@ -59,9 +59,10 @@ update_status ModulePhysics::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colliderType)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colliderType, ObjectType objectType)
 {
 	PhysBody* pbody = new PhysBody();
+	
 
 	b2BodyDef body;
 	body.type = colliderType;
@@ -80,11 +81,12 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colli
 
 	pbody->body = b;
 	pbody->width = pbody->height = radius;
+	pbody->objectType = objectType;
 
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2BodyType colliderType, ObjectType objectType)
 {
 	PhysBody* pbody = new PhysBody();
 
@@ -106,11 +108,12 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 	pbody->body = b;
 	pbody->width = (int)(width * 0.5f);
 	pbody->height = (int)(height * 0.5f);
+	pbody->objectType = objectType;
 
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height)
+PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height, b2BodyType colliderType, ObjectType objectType)
 {
 	PhysBody* pbody = new PhysBody();
 
@@ -134,11 +137,12 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	pbody->body = b;
 	pbody->width = width;
 	pbody->height = height;
+	pbody->objectType = objectType;
 
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
+PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, b2BodyType colliderType, ObjectType objectType)
 {
 	PhysBody* pbody = new PhysBody();
 
@@ -169,6 +173,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size)
 
 	pbody->body = b;
 	pbody->width = pbody->height = 0;
+	pbody->objectType = objectType;
 
 	return pbody;
 }
@@ -374,7 +379,7 @@ b2RevoluteJoint* ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* b
 	jointDef.upperAngle = angle.y;
 	jointDef.enableMotor = true;
 	jointDef.motorSpeed = 0.0f;
-	jointDef.maxMotorTorque = 100.0f;  // Ajusta según se requiera
+	jointDef.maxMotorTorque = 300.0f;  // Ajusta según se requiera
 	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 	return joint;
 }

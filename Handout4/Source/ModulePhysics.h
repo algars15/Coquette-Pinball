@@ -14,6 +14,15 @@
 #define METERS_TO_PIXELS(m) ((int) floor(PIXELS_PER_METER * m))
 #define PIXEL_TO_METERS(p)  ((float) METER_PER_PIXEL * p)
 
+enum ObjectType
+{
+	UNKNOWN,
+	BOLA,
+	PALANCA,
+	MUELLE,
+	REBOTADOR,
+};
+
 // Small class to return to other modules to track position and rotation of physics bodies
 class PhysBody
 {
@@ -28,6 +37,7 @@ public:
 	int RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& normal_y) const;
 
 public:
+	ObjectType objectType;
 	int width, height;
 	b2Body* body;
 	Module* listener;
@@ -45,10 +55,10 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType colliderType = b2BodyType::b2_dynamicBody);
-	PhysBody* CreateRectangle(int x, int y, int width, int height);
-	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
-	PhysBody* CreateChain(int x, int y, const int* points, int size);
+	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
+	PhysBody* CreateRectangleSensor(int x, int y, int width, int height, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
+	PhysBody* CreateChain(int x, int y, const int* points, int size, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
 
 	b2RevoluteJoint* CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, b2Vec2 anchor, b2Vec2 angle = b2Vec2_zero);
 
