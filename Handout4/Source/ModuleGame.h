@@ -7,10 +7,12 @@
 
 #include "raylib.h"
 #include <vector>
+#include "box2d.h"
 
 class PhysBody;
 class PhysicEntity;
 class Box;
+
 
 
 class ModuleGame : public Module
@@ -23,6 +25,8 @@ public:
 	update_status Update();
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+
+
 
 public:
 
@@ -41,8 +45,12 @@ public:
 
 	uint32 bonus_fx;
 
-	Box *mollaTop;
-	Box *mollaBottom;
+	Box* shooter;
+	b2Vec2 shooterInitPos;
+	float distancia;
+	b2Vec2 shotVel;
+	
+
 
 	vec2<int> ray;
 	bool ray_on;

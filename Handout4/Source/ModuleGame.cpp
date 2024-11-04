@@ -25,7 +25,7 @@ public:
 		return 0;
 	}
 
-protected:
+public:
 	PhysBody* body;
 	Module* listener;
 };
@@ -296,18 +296,24 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
 
-	entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
+	//entities.emplace_back(new Box(App->physics, 295 - palancaTexture.width / 2, 607+palancaTexture.height/2, palancaTexture.width, palancaTexture.height, this, palancaTexture));
 
-	mollaBottom = new Box(App->physics, 450 + springBottom.width/2, 480-springBottom.height/2, springBottom.width, springBottom.height, this, springBottom);
-	entities.emplace_back(mollaBottom);
+	//mollaBottom = new Box(App->physics, 450 + springBottom.width/2, 480-springBottom.height/2, springBottom.width, springBottom.height, this, springBottom);
+	//entities.emplace_back(mollaBottom);
 
-	mollaTop = new Box(App->physics, 450 + springBottom.width / 2, 480 - springBottom.height, springTop.width, springTop.height, this, springTop);
-	entities.emplace_back(mollaTop);
+	//mollaTop = new Box(App->physics, 450 + springBottom.width / 2, 480 - springBottom.height, springTop.width, springTop.height, this, springTop);
+	//entities.emplace_back(mollaTop);
 
-	b2RevoluteJointDef jointMolla;
-	jointMolla.Initialize(mollaBottom, mollaTop, mollaBottom->GetWorldCenter());
 	
-
+	shooter = new Box(App->physics, 450+springTop.width/2,475-springBottom.height, springTop.width, springTop.height, this, springTop);
+	entities.emplace_back(shooter);
+	
+	//shooterInitPos = shooter->body->GetWorldCenter();
+	//shooter->listener = this;
+	distancia = 0;
+	
+	
+	
 
 	return ret;
 }
@@ -381,6 +387,18 @@ update_status ModuleGame::Update()
 		if (normal.x != 0.0f)
 		{
 			DrawLine((int)(ray.x + destination.x), (int)(ray.y + destination.y), (int)(ray.x + destination.x + normal.x * 25.0f), (int)(ray.y + destination.y + normal.y * 25.0f), Color{ 100, 255, 100, 255 });
+		}
+	}
+
+	if (IsKeyPressed(KEY_DOWN)) {
+		if (distancia < 475)
+		{
+			distancia++;
+			LOG("DISTANCE: %f", distancia);
+			shooter->body->body->SetLinearVelocity(b2Vec2(0, distancia));
+		}
+		if (distancia >= 475) {
+			shooter->body->body->SetLinearVelocity(b2Vec2(0, 0));
 		}
 	}
 
