@@ -41,11 +41,13 @@ public:
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
 	Texture2D springTop;
-	Texture2D springBottom;
+	//Texture2D springBottom;
+	Texture2D springTex;
 
 	uint32 bonus_fx;
 
-	Box* shooter;
+	//Box* shooter;
+	Box* spring;
 	b2Vec2 shooterInitPos;
 	float distancia;
 	b2Vec2 shotVel;

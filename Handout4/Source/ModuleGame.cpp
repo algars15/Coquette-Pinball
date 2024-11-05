@@ -133,7 +133,8 @@ bool ModuleGame::Start()
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	springTop = LoadTexture("Assets/SpringTop.png");
-	springBottom = LoadTexture("Assets/SpringBottom.png");
+	//springBottom = LoadTexture("Assets/SpringBottom.png");
+	springTex = LoadTexture("Assets/Spring.png");
 	//palanca_invertida = LoadTexture("Assets/palanca_invertida.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
@@ -276,19 +277,6 @@ bool ModuleGame::Start()
 	2, 0
 	};
 
-	//int palanca_inverted[20] = {
-	//3, 0,
-	//0, 2,
-	//0, 16,
-	//2, 20,
-	//7, 20,
-	//58, 11,
-	//60, 9,
-	//60, 5,
-	//58, 0,
-	//3, 0
-	//};
-
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
@@ -305,9 +293,19 @@ bool ModuleGame::Start()
 	//entities.emplace_back(mollaTop);
 
 	
-	shooter = new Box(App->physics, 450+springTop.width/2,475-springBottom.height, springTop.width, springTop.height, this, springTop);
-	entities.emplace_back(shooter);
-	shooter->body->body->SetGravityScale(0);
+	//shooter = new Box(App->physics, 450,475, springTop.width, springTop.height, this, springTop);
+	//entities.emplace_back(shooter);
+	//shooter->body->body->SetGravityScale(0);
+
+	spring = new Box(App->physics, 450, 339, springTop.width, springTop.height, this, springTex);
+	spring->body->body->SetGravityScale(0);
+	spring->body->body->SetFixedRotation(true);
+	
+	
+
+
+	entities.emplace_back(spring);
+	
 	
 	//shooterInitPos = shooter->body->GetWorldCenter();
 	//shooter->listener = this;
@@ -391,17 +389,22 @@ update_status ModuleGame::Update()
 		}
 	}
 
+	
+
 	if (IsKeyDown(KEY_DOWN)) {
-		if (distancia < 475)
-		{
-			distancia++;
-			LOG("DISTANCE: %f", distancia);
-			shooter->body->body->SetLinearVelocity(b2Vec2(0, distancia));
-		}
-		/*if (distancia >= 475) {
-			shooter->body->body->SetLinearVelocity(b2Vec2(0, 0));
-		}*/
+		spring->body->body->SetLinearVelocity(b2Vec2(0, 10));
 	}
+	else {
+		spring->body->body->SetLinearVelocity(b2Vec2(0, -10));
+	}
+
+	/*if (spring->body->body->GetPosition().y >= 480) {
+		spring->body->body->SetLinearVelocity(b2Vec2(0, -10));
+	}*/
+
+	//if (spring->body->body->GetPosition().y <= 339)	spring->body->body->SetLinearVelocity(b2Vec2(0, 0));
+	//if (spring->body->body->GetPosition().y >= 480)	spring->body->body->SetLinearVelocity(b2Vec2(0, -10));
+
 
 	return UPDATE_CONTINUE;
 }
