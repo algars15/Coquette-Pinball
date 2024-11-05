@@ -139,6 +139,7 @@ bool ModuleGame::Start()
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
 	velocitatPalanca = 20;
 	
+
 	//MAPA
 	int map[82] = {
 	480, 0,
@@ -308,6 +309,7 @@ bool ModuleGame::Start()
 	160, 540,
 	};
 
+
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
@@ -317,8 +319,12 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map6, 12, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map7, 14, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map,REBOTADOR));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map,REBOTADOR));
+	App->physics->CreateCircle(168, 168, 13, b2_staticBody, REBOTADOR);
+	App->physics->CreateCircle(296, 168, 13, b2_staticBody, REBOTADOR);
+	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
+
 
 	//PALANCAS
 	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, PALANCA);
@@ -436,6 +442,9 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
 		switch (object->objectType)
 		{
+			case REBOTADOR:
+
+				break;
 			default:
 				break;
 		}

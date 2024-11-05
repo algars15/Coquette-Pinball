@@ -76,6 +76,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colli
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
 	fixture.density = 1.0f;
+	
 
 	b->CreateFixture(&fixture);
 
@@ -131,6 +132,7 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	fixture.shape = &box;
 	fixture.density = 1.0f;
 	fixture.isSensor = true;
+	
 
 	b->CreateFixture(&fixture);
 
@@ -382,4 +384,29 @@ b2RevoluteJoint* ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* b
 	jointDef.maxMotorTorque = 300.0f;  // Ajusta según se requiera
 	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 	return joint;
+}
+
+void ModulePhysics::SetRestitution(PhysBody* p, float r)
+{
+	// Paso 1: Obtener el primer fixture del cuerpo
+	b2Fixture* oldFixture = p->body->GetFixtureList();  // Obtener el primer fixture
+
+	// Paso 2: Guardar las propiedades del fixture antiguo
+	b2Shape* shape = oldFixture->GetShape();  // Obtener la forma del fixture
+	float friction = oldFixture->GetFriction();  // Obtener la fricción
+	float density = oldFixture->GetDensity();  // Obtener la densidad
+	float restitution = oldFixture->GetRestitution();  // Obtener la restitución anterior
+
+	// Paso 3: Eliminar el fixture antiguo
+	p->body->DestroyFixture(oldFixture);  // Eliminar el fixture viejo
+
+	// Paso 4: Crear un nuevo fixture con las mismas propiedades, pero con la restitución modificada
+	b2FixtureDef newFixtureDef;
+	newFixtureDef.shape = shape;  // Usamos la misma forma que el fixture anterior
+	newFixtureDef.friction = friction;  // Usamos la misma fricción
+	newFixtureDef.density = density;  // Usamos la misma densidad
+	newFixtureDef.restitution = r;  // Modificamos la restitución con el valor 'r'
+
+	// Paso 5: Crear el nuevo fixture y agregarlo al cuerpo
+	p->body->CreateFixture(&newFixtureDef);
 }

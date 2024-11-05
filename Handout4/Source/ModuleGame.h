@@ -50,7 +50,6 @@ public:
 
 	b2RevoluteJoint* jointPalancaIzquierda;
 	b2RevoluteJoint* jointPalancaDerecha;
-
 	uint32 bonus_fx;
 
 	vec2<int> ray;
