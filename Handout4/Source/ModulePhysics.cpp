@@ -383,3 +383,30 @@ b2RevoluteJoint* ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* b
 	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
 	return joint;
 }
+
+b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, int p2X, int p1Y, int p2Y) {
+	
+	b2Body* ground = NULL;
+	{
+		b2BodyDef bd;
+		ground = world->CreateBody(&bd);
+
+		b2EdgeShape shape;
+		shape.SetTwoSided(b2Vec2(p1X, p1Y), b2Vec2(p2X, p2Y));
+		ground->CreateFixture(&shape, 0.0f);
+	}
+
+	
+
+	b2PrismaticJointDef jointDef;
+	jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
+	jointDef.enableLimit = true;
+	jointDef.lowerTranslation = -5.0f;
+	jointDef.upperTranslation = 2.5f;
+	jointDef.enableMotor = true;
+	jointDef.maxMotorForce = 1.0f;
+	jointDef.motorSpeed = 10.0f;
+
+	b2PrismaticJoint* joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
+	return joint;
+}

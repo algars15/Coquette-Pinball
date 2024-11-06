@@ -136,9 +136,9 @@ bool ModuleGame::Start()
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
 	loseScreen = LoadTexture("Assets/lose_screen.png");
-	//spring = LoadTexture("Assets/Spring.png");
-	//springTop = LoadTexture("Assets/SpringTop.png");
-	//springBottom = LoadTexture("Assets/SpringBottom.png");
+	spring = LoadTexture("Assets/Spring.png");
+	springTop = LoadTexture("Assets/SpringTop.png");
+	springBottom = LoadTexture("Assets/SpringBottom.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
@@ -326,18 +326,14 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
 
-	/*mollaTop = new Box(App->physics, 100, 100, springTop.width, springTop.height, this, springTop);
-	mollaBottom = new Box(App->physics, 100, 100, springBottom.width, springBottom.height, this, springBottom);
 
-	b2PrismaticJointDef molla; 
-	b2Vec2 worldAxis(1.0f, 0.0f);
-	molla.Initialize(mollaTop->body->body, mollaBottom->body->body, mollaTop->body->body->GetWorldCenter(),worldAxis);
-	molla.enableLimit = true;
-	molla.lowerTranslation = -5.0f;
-	molla.upperTranslation = 2.5f;
-	molla.enableMotor = true;
-	molla.maxMotorForce = 1.0f;
-	molla.motorSpeed = 10.0f;*/
+	molla = new Box(App->physics, 200, 100, spring.width, spring.height, this, spring);
+	entities.emplace_back(molla);
+
+	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 450, 480, 480, 480);
+
+
+
 
 
 	//PALANCAS
