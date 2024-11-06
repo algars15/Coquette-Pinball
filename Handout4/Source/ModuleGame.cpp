@@ -125,6 +125,8 @@ bool ModuleGame::Start()
 {
 	LOG("Loading Intro assets");
 	bool ret = true;
+	mort = false;
+	vides = 4;
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
@@ -133,10 +135,14 @@ bool ModuleGame::Start()
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
+	loseScreen = LoadTexture("Assets/lose_screen.png");
+	//spring = LoadTexture("Assets/Spring.png");
+	//springTop = LoadTexture("Assets/SpringTop.png");
+	//springBottom = LoadTexture("Assets/SpringBottom.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	
 	//MAPA
@@ -320,6 +326,20 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
 
+	/*mollaTop = new Box(App->physics, 100, 100, springTop.width, springTop.height, this, springTop);
+	mollaBottom = new Box(App->physics, 100, 100, springBottom.width, springBottom.height, this, springBottom);
+
+	b2PrismaticJointDef molla; 
+	b2Vec2 worldAxis(1.0f, 0.0f);
+	molla.Initialize(mollaTop->body->body, mollaBottom->body->body, mollaTop->body->body->GetWorldCenter(),worldAxis);
+	molla.enableLimit = true;
+	molla.lowerTranslation = -5.0f;
+	molla.upperTranslation = 2.5f;
+	molla.enableMotor = true;
+	molla.maxMotorForce = 1.0f;
+	molla.motorSpeed = 10.0f;*/
+
+
 	//PALANCAS
 	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, PALANCA);
 	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, PALANCA); 
@@ -362,7 +382,9 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_ONE))
 	{
-		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width/2, this, circle));
+		//crear bé la bola
+		bola = new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width / 2, this, circle, BOLA);
+		entities.emplace_back(bola);
 		
 	}
 
@@ -416,6 +438,21 @@ update_status ModuleGame::Update()
 		}
 	}
 
+	if (mort) {
+		vides--;
+		mort = false;
+		if (vides <= 0) {
+			//pantalla de mort
+
+		}
+
+		else{
+			bola->body->body->SetTransform({ PIXEL_TO_METERS(465),PIXEL_TO_METERS(243) }, 0);
+		}
+		
+		//TraceLog(LOG_INFO, "hola");
+	}
+
 	return UPDATE_CONTINUE;
 }
 
@@ -434,8 +471,13 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	if (bodyA->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA)
 	{
 		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
+		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyB;
+
 		switch (object->objectType)
 		{
+			case DETECTOR_MORT:
+				mort = true;
+				break;
 			default:
 				break;
 		}

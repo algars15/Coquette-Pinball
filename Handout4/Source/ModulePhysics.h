@@ -21,6 +21,7 @@ enum ObjectType
 	PALANCA,
 	MUELLE,
 	REBOTADOR,
+	DETECTOR_MORT
 };
 
 // Small class to return to other modules to track position and rotation of physics bodies
