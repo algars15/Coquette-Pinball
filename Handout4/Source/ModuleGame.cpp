@@ -138,7 +138,7 @@ bool ModuleGame::Start()
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
 	velocitatPalanca = 20;
-	
+	forcaImpuls = 5;
 
 	//MAPA
 	int map[82] = {
@@ -368,7 +368,7 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_ONE))
 	{
-		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width/2, this, circle));
+		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width/2, this, circle, BOLA));
 		
 	}
 
@@ -435,16 +435,23 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 	}
 }
 
-void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
+void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 {
 	if (bodyA->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA)
 	{
+		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyA;
 		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
 		switch (object->objectType)
 		{
 			case REBOTADOR:
-
+			{
+				TraceLog(LOG_INFO, "ENTRA");
+				b2Vec2 impulseForce;
+				impulseForce.x = normal.x * forcaImpuls;
+				impulseForce.y = normal.y * forcaImpuls;
+				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
 				break;
+			}
 			default:
 				break;
 		}

@@ -72,7 +72,8 @@ public:
 		return true; 
 	}
 
-	virtual void OnCollision(PhysBody* bodyA, PhysBody* bodyB)
+	virtual void OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal = { 0.f,0.f })
 	{
+
 	}
 };

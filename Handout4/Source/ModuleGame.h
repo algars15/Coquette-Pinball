@@ -27,7 +27,7 @@ public:
 	bool Start();
 	update_status Update();
 	bool CleanUp();
-	void OnCollision(PhysBody* bodyA, PhysBody* bodyB);
+	void OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal);
 	void UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right);
 
 public:
@@ -55,4 +55,5 @@ public:
 	vec2<int> ray;
 	bool ray_on;
 	int velocitatPalanca;
+	int forcaImpuls;
 };
