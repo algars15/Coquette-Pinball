@@ -138,7 +138,7 @@ bool ModuleGame::Start()
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
 	velocitatPalanca = 20;
-	forcaImpuls = 5;
+	forcaImpuls = 3.5f;
 
 	//MAPA
 	int map[82] = {
