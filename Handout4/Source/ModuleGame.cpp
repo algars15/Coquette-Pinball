@@ -314,7 +314,7 @@ bool ModuleGame::Start()
 	160, 540,
 	};
 
-	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
+	//entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
@@ -327,7 +327,8 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
 
 
-	molla = new Box(App->physics, 200, 100, spring.width, spring.height, this, spring);
+	molla = new Box(App->physics, 450+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
+	molla->body->body->SetGravityScale(0);
 	entities.emplace_back(molla);
 
 	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 450, 480, 480, 480);
@@ -387,6 +388,15 @@ update_status ModuleGame::Update()
 	if(IsKeyPressed(KEY_TWO))
 	{
 		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
+	}
+
+	if (IsKeyDown(KEY_DOWN)) {
+		jointMolla->SetMotorSpeed(10);
+		jointMolla->SetMaxMotorForce(10);
+		
+	}
+	else {
+		jointMolla->SetMotorSpeed(-10);
 	}
 
 	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);

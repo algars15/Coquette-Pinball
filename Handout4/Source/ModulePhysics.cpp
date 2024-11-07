@@ -399,13 +399,15 @@ b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, i
 	
 
 	b2PrismaticJointDef jointDef;
-	jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
+	//jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
+	jointDef.Initialize(ground, body->body, ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
 	jointDef.enableLimit = true;
-	jointDef.lowerTranslation = -5.0f;
-	jointDef.upperTranslation = 2.5f;
+	jointDef.lowerTranslation = 0;
+	jointDef.upperTranslation = 2.6f;
 	jointDef.enableMotor = true;
-	jointDef.maxMotorForce = 1.0f;
-	jointDef.motorSpeed = 10.0f;
+	jointDef.maxMotorForce = 0.0f;
+	jointDef.motorSpeed = 0;
+	
 
 	b2PrismaticJoint* joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
 	return joint;
