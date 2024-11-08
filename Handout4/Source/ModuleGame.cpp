@@ -369,7 +369,8 @@ bool ModuleGame::Start()
 	//BOLA
 	bola = new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle, true, BOLA);
 	entities.emplace_back(bola);
-
+	//Score
+	record = 0;
 	return ret;
 }
 
@@ -378,6 +379,7 @@ void ModuleGame::RestartGame()
 	mort = false;
 	returnMain = false;
 	vides = 4;
+	score = 0;
 	bola->body->body->SetLinearVelocity({ 0,0 });
 	bola->body->body->SetAngularVelocity({ 0 });
 	bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
@@ -417,11 +419,10 @@ update_status ModuleGame::Update()
 		jointMolla->SetMotorSpeed(0);       
 		jointMolla->SetMaxMotorForce(0);
 	}
-
 	
 
-	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
-	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
+	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_LEFT), false);
+	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_RIGHT), true);
 
 
 	// Prepare for raycast ------------------------------------------------------
@@ -470,6 +471,10 @@ update_status ModuleGame::Update()
 		vides--;
 		mort = false;
 		if (vides <= 0) {
+			if (score >= record) {
+				record = score;
+				TraceLog(LOG_INFO, "%i", record);
+			}
 			returnMain = true;
 		}
 
@@ -508,15 +513,20 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 		{
 			case REBOTADOR:
 			{
-				TraceLog(LOG_INFO, "ENTRA");
+				/*TraceLog(LOG_INFO, "ENTRA");*/
+				TraceLog(LOG_INFO, "%i", score);
 				b2Vec2 impulseForce;
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
 				App->audio->PlayFx(bouncerSound);
+				score += 100;
 				break;
 			}
 			case DETECTOR_MORT:
+				//Record
+				previous = score - previous;
+				TraceLog(LOG_INFO, "%i", previous);
 				mort = true;
 				break;
 			default:

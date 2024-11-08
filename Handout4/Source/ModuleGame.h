@@ -76,6 +76,10 @@ public:
 	bool mort;
 	bool returnMain;
 	int vides;
+	//score
+	int score;
+	int record;
+	int previous;
 
 	vec2<int> ray;
 	bool ray_on;

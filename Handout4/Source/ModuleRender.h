@@ -24,4 +24,6 @@ public:
 
 	Color background;
     Rectangle camera;
+	// Debug fps
+	bool fps;
 };

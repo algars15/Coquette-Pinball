@@ -18,6 +18,7 @@ bool ModuleRender::Init()
 {
 	LOG("Creating Renderer context");
 	bool ret = true;
+    bool fps = false;
 
 	return ret;
 }
@@ -45,8 +46,14 @@ update_status ModuleRender::Update()
 update_status ModuleRender::PostUpdate()
 {
     // Draw everything in our batch!
-    DrawFPS(10, 10);
-
+    //Debug fps
+    if (IsKeyPressed(KEY_F1))
+    {
+        fps = !fps;
+    }
+    if (fps) {
+        DrawFPS(10, 10);
+    }
     EndDrawing();
 
 	return UPDATE_CONTINUE;
