@@ -33,9 +33,9 @@ public:
 class Circle : public PhysicEntity
 {
 public:
-	Circle(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
+	Circle(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture, bool _draw = true, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
 		: PhysicEntity(physics->CreateCircle(_x, _y, radious, colliderType, objectType), _listener)
-		, texture(_texture)
+		, texture(_texture), draw(_draw)
 	{
 
 	}
@@ -44,26 +44,30 @@ public:
 	{
 		int x, y;
 		body->GetPhysicPosition(x, y);
-		Vector2 position{ (float)x, (float)y };
-		float scale = 1.0f;
-		Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
-		Rectangle dest = { position.x, position.y, (float)texture.width * scale, (float)texture.height * scale };
-		Vector2 origin = { (float)texture.width / 2.0f, (float)texture.height / 2.0f};
-		float rotation = body->GetRotation() * RAD2DEG;
-		DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
+		if (draw)
+		{
+			Vector2 position{ (float)x, (float)y };
+			float scale = 1.0f;
+			Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
+			Rectangle dest = { position.x, position.y, (float)texture.width * scale, (float)texture.height * scale };
+			Vector2 origin = { (float)texture.width / 2.0f, (float)texture.height / 2.0f};
+			float rotation = body->GetRotation() * RAD2DEG;
+			DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
+		}
+		
 	}
 
 private:
 	Texture2D texture;
-
+	bool draw;
 };
 
 class Box : public PhysicEntity
 {
 public:
-	Box(ModulePhysics* physics, int _x, int _y, int w, int h, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
+	Box(ModulePhysics* physics, int _x, int _y, int w, int h, Module* _listener, Texture2D _texture, bool _draw = true, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
 		: PhysicEntity(physics->CreateRectangle(_x, _y, w, h, colliderType, objectType), _listener)
-		, texture(_texture)
+		, texture(_texture), draw(_draw)
 	{
 
 	}
@@ -72,9 +76,13 @@ public:
 	{
 		int x, y;
 		body->GetPhysicPosition(x, y);
-		DrawTexturePro(texture, Rectangle{ 0, 0, (float)texture.width, (float)texture.height },
-			Rectangle{ (float)x, (float)y, (float)texture.width, (float)texture.height },
-			Vector2{ (float)texture.width / 2.0f, (float)texture.height / 2.0f}, body->GetRotation() * RAD2DEG, WHITE);
+		if (draw)
+		{
+			DrawTexturePro(texture, Rectangle{ 0, 0, (float)texture.width, (float)texture.height },
+				Rectangle{ (float)x, (float)y, (float)texture.width, (float)texture.height },
+				Vector2{ (float)texture.width / 2.0f, (float)texture.height / 2.0f }, body->GetRotation() * RAD2DEG, WHITE);
+		}
+		
 	}
 
 	int RayHit(vec2<int> ray, vec2<int> mouse, vec2<float>& normal) override
@@ -84,7 +92,7 @@ public:
 
 private:
 	Texture2D texture;
-
+	bool draw;
 };
 
 class Shape : public PhysicEntity
@@ -93,9 +101,9 @@ public:
 	// Pivot 0, 0
 
 
-	Shape(ModulePhysics* physics, int _x, int _y, int points[], int numberOfPoints, Module* _listener, Texture2D _texture, ObjectType objectType = UNKNOWN,  b2BodyType colliderType = b2_dynamicBody)
+	Shape(ModulePhysics* physics, int _x, int _y, int points[], int numberOfPoints, Module* _listener, Texture2D _texture, bool _draw = true, ObjectType objectType = UNKNOWN,  b2BodyType colliderType = b2_dynamicBody)
 		: PhysicEntity(physics->CreateChain(_x , _y , points, numberOfPoints, colliderType, objectType), _listener)
-		, texture(_texture)
+		, texture(_texture), draw(_draw)
 	{
 
 	}
@@ -104,10 +112,11 @@ public:
 	{
 		int x, y;
 		body->GetPhysicPosition(x, y);
-		DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
+		if(draw) DrawTextureEx(texture, Vector2{ (float)x, (float)y }, body->GetRotation() * RAD2DEG, 1.0f, WHITE);
 	}
 private:
 	Texture2D texture;
+	bool draw;
 };
 
 
@@ -131,14 +140,13 @@ bool ModuleGame::Start()
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
 	pimball_map = LoadTexture("Assets/map.png");
-	circle = LoadTexture("Assets/bola.png"); 
+	circle = LoadTexture("Assets/bola2.png"); 
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
 	loseScreen = LoadTexture("Assets/lose_screen.png");
 	spring = LoadTexture("Assets/Spring.png");
-	springTop = LoadTexture("Assets/SpringTop.png");
-	springBottom = LoadTexture("Assets/SpringBottom.png");
+	pimball_map2 = LoadTexture("Assets/map2.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
@@ -316,17 +324,17 @@ bool ModuleGame::Start()
 	};
 
 
-	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map6, 12, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map7, 14, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map,REBOTADOR));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map,REBOTADOR));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map, true));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map4, 14, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map5, 14, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map6, 12, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map7, 14, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map, false));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map, false, REBOTADOR));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map,false, REBOTADOR));
 	App->physics->CreateCircle(168, 168, 13, b2_staticBody, REBOTADOR);
 	App->physics->CreateCircle(296, 168, 13, b2_staticBody, REBOTADOR);
 	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
@@ -341,8 +349,8 @@ bool ModuleGame::Start()
 
 
 	//PALANCAS
-	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, PALANCA);
-	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, PALANCA); 
+	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, true,  PALANCA);
+	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, true, PALANCA); 
 
 	palancaIzquierda->body->body->SetGravityScale(0);
 	palancaDerecha->body->body->SetGravityScale(0);
@@ -357,7 +365,9 @@ bool ModuleGame::Start()
 	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.50, 0.50 });
 
 
-	//BOLAS REBOTADORAS
+	//BOLA
+	bola = new Circle(App->physics, 465, 243, circle.width / 2, this, circle, true, BOLA);
+	entities.emplace_back(bola);
 
 	return ret;
 }
@@ -374,24 +384,6 @@ bool ModuleGame::CleanUp()
 // Update: draw background
 update_status ModuleGame::Update()
 {
-	if(IsKeyPressed(KEY_SPACE))
-	{
-		ray_on = !ray_on;
-		ray.x = GetMouseX();
-		ray.y = GetMouseY();
-	}
-
-	if(IsKeyPressed(KEY_ONE))
-	{
-		bola = new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width / 2, this, circle, BOLA);
-		entities.emplace_back(bola);
-	}
-
-	if(IsKeyPressed(KEY_TWO))
-	{
-		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
-	}
-
 	float translation = jointMolla->GetJointTranslation();
 	float upperLimit = jointMolla->GetUpperLimit();
 	float lowerLimit = jointMolla->GetLowerLimit();
@@ -443,6 +435,7 @@ update_status ModuleGame::Update()
 				ray_hit = hit;
 			}
 		}
+		DrawTexture(pimball_map2, 0, 0, WHITE);
 	}
 	
 

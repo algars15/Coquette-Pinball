@@ -39,6 +39,7 @@ public:
 	bool sensed;
 
 	Texture2D pimball_map;
+	Texture2D pimball_map2;
 	Texture2D circle;
 	Texture2D box;
 	Texture2D palancaTexture;
