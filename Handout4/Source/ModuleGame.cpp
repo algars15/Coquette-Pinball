@@ -134,10 +134,6 @@ bool ModuleGame::Start()
 {
 	LOG("Loading Intro assets");
 	bool ret = true;
-	mort = false;
-	vides = 4;
-
-	App->renderer->camera.x = App->renderer->camera.y = 0;
 
 	pimball_map = LoadTexture("Assets/map.png");
 	circle = LoadTexture("Assets/bola2.png"); 
@@ -153,6 +149,7 @@ bool ModuleGame::Start()
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 4;
+	startPos = { 465, 310 };
 
 	//MAPA
 	int map[82] = {
@@ -334,7 +331,7 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map7, 14, this, pimball_map, false));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map, false));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map, false, REBOTADOR));
-	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map,false, REBOTADOR));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map, false, REBOTADOR));
 	App->physics->CreateCircle(168, 168, 13, b2_staticBody, REBOTADOR);
 	App->physics->CreateCircle(296, 168, 13, b2_staticBody, REBOTADOR);
 	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
@@ -366,10 +363,20 @@ bool ModuleGame::Start()
 
 
 	//BOLA
-	bola = new Circle(App->physics, 465, 243, circle.width / 2, this, circle, true, BOLA);
+	bola = new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle, true, BOLA);
 	entities.emplace_back(bola);
 
 	return ret;
+}
+
+void ModuleGame::RestartGame()
+{
+	mort = false;
+	returnMain = false;
+	vides = 4;
+	bola->body->body->SetLinearVelocity({ 0,0 });
+	bola->body->body->SetAngularVelocity({ 0 });
+	bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
 }
 
 
@@ -458,12 +465,14 @@ update_status ModuleGame::Update()
 		vides--;
 		mort = false;
 		if (vides <= 0) {
-			//pantalla de mort
-
+			returnMain = true;
 		}
 
 		else{
-			bola->body->body->SetTransform({ PIXEL_TO_METERS(465),PIXEL_TO_METERS(243) }, 0);
+
+			bola->body->body->SetLinearVelocity({0,0});
+			bola->body->body->SetAngularVelocity({0});
+			bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
 		}
 		
 		//TraceLog(LOG_INFO, "hola");
@@ -507,4 +516,9 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				break;
 		}
 	}
+}
+
+bool ModuleGame::GetReturnMain()
+{
+	return returnMain;
 }

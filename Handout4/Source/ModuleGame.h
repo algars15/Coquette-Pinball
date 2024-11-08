@@ -30,6 +30,8 @@ public:
 	bool CleanUp();
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal);
 	void UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right);
+	bool GetReturnMain();
+	void RestartGame();
 
 public:
 
@@ -69,10 +71,13 @@ public:
 	uint32 bonus_fx;
 
 	bool mort;
+	bool returnMain;
 	int vides;
 
 	vec2<int> ray;
 	bool ray_on;
 	int velocitatPalanca;
 	int forcaImpuls;
+	Vector2 startPos;
+
 };

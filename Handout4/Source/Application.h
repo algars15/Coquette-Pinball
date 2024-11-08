@@ -9,7 +9,7 @@ class ModuleWindow;
 class ModuleRender;
 class ModuleAudio;
 class ModulePhysics;
-class ModuleGame;
+class ModuleScene;
 
 class Application
 {
@@ -19,7 +19,7 @@ public:
 	ModuleWindow* window;
 	ModuleAudio* audio;
 	ModulePhysics* physics;
-	ModuleGame* scene_intro;
+	ModuleScene* scene_intro;
 
 private:
 
