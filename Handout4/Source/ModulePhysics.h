@@ -21,6 +21,7 @@ enum ObjectType
 	PALANCA,
 	MUELLE,
 	REBOTADOR,
+	DETECTOR_MORT
 };
 
 // Small class to return to other modules to track position and rotation of physics bodies
@@ -61,6 +62,7 @@ public:
 	PhysBody* CreateChain(int x, int y, const int* points, int size, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
 
 	b2RevoluteJoint* CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, b2Vec2 anchor, b2Vec2 angle = b2Vec2_zero);
+	b2PrismaticJoint* CreatePrismaticJoint(PhysBody* bodyA, int p1X, int p2X, int p1Y, int p2Y);
 
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);

@@ -119,7 +119,7 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	PhysBody* pbody = new PhysBody();
 
 	b2BodyDef body;
-	body.type = b2_staticBody;
+	body.type = colliderType;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
 
@@ -387,7 +387,36 @@ b2RevoluteJoint* ModulePhysics::CreateRevoluteJoint(PhysBody* bodyA, PhysBody* b
 	jointDef.upperAngle = angle.y;
 	jointDef.enableMotor = true;
 	jointDef.motorSpeed = 0.0f;
-	jointDef.maxMotorTorque = 300.0f;  // Ajusta según se requiera
+	jointDef.maxMotorTorque = 300.0f;  // Ajusta segï¿½n se requiera
 	b2RevoluteJoint* joint = (b2RevoluteJoint*)world->CreateJoint(&jointDef);
+	return joint;
+}
+
+b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, int p2X, int p1Y, int p2Y) {
+	
+	b2Body* ground = NULL;
+	{
+		b2BodyDef bd;
+		ground = world->CreateBody(&bd);
+
+		b2EdgeShape shape;
+		shape.SetTwoSided(b2Vec2(p1X, p1Y), b2Vec2(p2X, p2Y));
+		ground->CreateFixture(&shape, 0.0f);
+	}
+
+	
+
+	b2PrismaticJointDef jointDef;
+	//jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
+	jointDef.Initialize(ground, body->body, ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
+	jointDef.enableLimit = true;
+	jointDef.lowerTranslation = 0;
+	jointDef.upperTranslation = 2.6f;
+	jointDef.enableMotor = true;
+	jointDef.maxMotorForce = 1000.0f;
+	jointDef.motorSpeed = 0;
+	
+
+	b2PrismaticJoint* joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
 	return joint;
 }

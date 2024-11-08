@@ -125,6 +125,8 @@ bool ModuleGame::Start()
 {
 	LOG("Loading Intro assets");
 	bool ret = true;
+	mort = false;
+	vides = 4;
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
@@ -133,10 +135,14 @@ bool ModuleGame::Start()
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
+	loseScreen = LoadTexture("Assets/lose_screen.png");
+	spring = LoadTexture("Assets/Spring.png");
+	springTop = LoadTexture("Assets/SpringTop.png");
+	springBottom = LoadTexture("Assets/SpringBottom.png");
 	
 	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50);
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 3.5f;
 
@@ -161,8 +167,8 @@ bool ModuleGame::Start()
 	417, 52,
 	438, 66,
 	447, 95,
-	447, 480,
-	480, 480,
+	447, 620,
+	480, 620,
 	480, 70,
 	474, 41,
 	453, 15,
@@ -326,6 +332,14 @@ bool ModuleGame::Start()
 	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
 
 
+	//MOLLA
+	molla = new Box(App->physics, 448+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
+	molla->body->body->SetGravityScale(0);
+	entities.emplace_back(molla);
+
+	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 448, 480, 480, 480);
+
+
 	//PALANCAS
 	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, PALANCA);
 	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, PALANCA); 
@@ -341,6 +355,7 @@ bool ModuleGame::Start()
 
 	jointPalancaIzquierda = App->physics->CreateRevoluteJoint(palancaIzquierda->body, unionPalancaIzquierda, unionPalancaIzquierda->body->GetWorldCenter(), { -0.50, 0.50 });
 	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.50, 0.50 });
+
 
 	//BOLAS REBOTADORAS
 
@@ -368,14 +383,38 @@ update_status ModuleGame::Update()
 
 	if(IsKeyPressed(KEY_ONE))
 	{
-		entities.emplace_back(new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width/2, this, circle, BOLA));
-		
+		bola = new Circle(App->physics, GetMouseX(), GetMouseY(), circle.width / 2, this, circle, BOLA);
+		entities.emplace_back(bola);
 	}
 
 	if(IsKeyPressed(KEY_TWO))
 	{
 		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
 	}
+
+	float translation = jointMolla->GetJointTranslation();
+	float upperLimit = jointMolla->GetUpperLimit();
+	float lowerLimit = jointMolla->GetLowerLimit();
+
+
+	if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
+	{
+		jointMolla->SetMotorSpeed(5.0f);        
+		jointMolla->SetMaxMotorForce(5.0f);    
+	}
+	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
+	{
+		jointMolla->SetMotorSpeed(-100.0f);
+		jointMolla->SetMaxMotorForce(100.0f);
+	}
+	else
+	{
+		molla->body->body->SetLinearVelocity({0,0});
+		jointMolla->SetMotorSpeed(0);       
+		jointMolla->SetMaxMotorForce(0);
+	}
+
+	
 
 	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
 	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
@@ -422,6 +461,21 @@ update_status ModuleGame::Update()
 		}
 	}
 
+	if (mort) {
+		vides--;
+		mort = false;
+		if (vides <= 0) {
+			//pantalla de mort
+
+		}
+
+		else{
+			bola->body->body->SetTransform({ PIXEL_TO_METERS(465),PIXEL_TO_METERS(243) }, 0);
+		}
+		
+		//TraceLog(LOG_INFO, "hola");
+	}
+
 	return UPDATE_CONTINUE;
 }
 
@@ -441,6 +495,8 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 	{
 		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyA;
 		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
+		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyB;
+
 		switch (object->objectType)
 		{
 			case REBOTADOR:
@@ -452,6 +508,9 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
 				break;
 			}
+			case DETECTOR_MORT:
+				mort = true;
+				break;
 			default:
 				break;
 		}

@@ -16,6 +16,7 @@ class Circle;
 class Shape;
 
 class b2RevoluteJoint;
+class b2PrismaticJoint;
 
 
 class ModuleGame : public Module
@@ -42,15 +43,32 @@ public:
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
+	Texture2D loseScreen;
+	Texture2D spring;
+	Texture2D springTop;
+	Texture2D springBottom;
 
+	Circle* bola;
 	Box* palancaDerecha;
 	Box* palancaIzquierda;
 	PhysBody* unionPalancaDerecha;
 	PhysBody* unionPalancaIzquierda;
 
+	Box* mollaTop;
+	Box* mollaBottom;
+	Box* molla;
+	Shape* base;
+
+
 	b2RevoluteJoint* jointPalancaIzquierda;
 	b2RevoluteJoint* jointPalancaDerecha;
+
+	b2PrismaticJoint* jointMolla;
+
 	uint32 bonus_fx;
+
+	bool mort;
+	int vides;
 
 	vec2<int> ray;
 	bool ray_on;
