@@ -144,7 +144,7 @@ bool ModuleGame::Start()
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
-	forcaImpuls = 3.5f;
+	forcaImpuls = 4;
 
 	//MAPA
 	int map[82] = {
@@ -404,8 +404,8 @@ update_status ModuleGame::Update()
 	}
 	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
 	{
-		jointMolla->SetMotorSpeed(-100.0f);
-		jointMolla->SetMaxMotorForce(100.0f);
+		jointMolla->SetMotorSpeed(-200.0f);
+		jointMolla->SetMaxMotorForce(200.0f);
 	}
 	else
 	{
@@ -495,7 +495,6 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 	{
 		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyA;
 		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
-		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyB;
 
 		switch (object->objectType)
 		{
