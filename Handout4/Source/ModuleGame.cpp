@@ -144,7 +144,11 @@ bool ModuleGame::Start()
 	spring = LoadTexture("Assets/Spring.png");
 	pimball_map2 = LoadTexture("Assets/map2.png");
 	
-	bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
+	//bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
+	springSound = App-> audio->LoadFx("Assets/springy.wav");
+	flipperSound = App-> audio->LoadFx("Assets/flipper.wav");
+	bouncerSound = App-> audio->LoadFx("Assets/bonus.wav");
+	
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
@@ -399,7 +403,8 @@ update_status ModuleGame::Update()
 	if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
 	{
 		jointMolla->SetMotorSpeed(5.0f);        
-		jointMolla->SetMaxMotorForce(5.0f);    
+		jointMolla->SetMaxMotorForce(5.0f);
+		App->audio->PlayFx(springSound);
 	}
 	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
 	{
@@ -485,6 +490,7 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 {
 	if (isPressed) {
 		joint->SetMotorSpeed(right ? -velocitatPalanca : velocitatPalanca);
+		
 	}
 	else {
 		joint->SetMotorSpeed(right ? velocitatPalanca/4 : -velocitatPalanca/4);
@@ -507,6 +513,7 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+				App->audio->PlayFx(bouncerSound);
 				break;
 			}
 			case DETECTOR_MORT:

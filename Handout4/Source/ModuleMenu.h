@@ -19,4 +19,5 @@ public:
 private:
 	
 	Texture2D menuTexture;
+	Texture2D loseTexture;
 };

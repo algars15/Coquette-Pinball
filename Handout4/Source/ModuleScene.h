@@ -12,7 +12,8 @@ enum State
 {
 	MENU,
 	GAME,
-	TRANSITION
+	TRANSITION,
+	LOSE
 };
 
 enum FadeState
@@ -35,6 +36,7 @@ public:
 private:
 	ModuleGame* game;
 	ModuleMenu* menu;
+	ModuleMenu* lose;
 
 	State state;
 

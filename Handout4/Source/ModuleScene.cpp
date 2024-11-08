@@ -25,6 +25,8 @@ bool ModuleScene::Start()
     menu->Start();
     game = new ModuleGame(App);
     game->Start();
+    lose = new ModuleMenu(App);
+    lose->Start();
 
 	state = MENU;
 

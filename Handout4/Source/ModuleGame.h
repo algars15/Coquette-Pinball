@@ -68,7 +68,10 @@ public:
 
 	b2PrismaticJoint* jointMolla;
 
-	uint32 bonus_fx;
+	//uint32 bonus_fx;
+	uint32 springSound;
+	uint32 flipperSound;
+	uint32 bouncerSound;
 
 	bool mort;
 	bool returnMain;

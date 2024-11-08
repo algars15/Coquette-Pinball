@@ -23,6 +23,7 @@ ModuleMenu::~ModuleMenu()
 bool ModuleMenu::Start()
 {
 	menuTexture = LoadTexture("Assets/menu.png");
+	loseTexture = LoadTexture("Assets/lose_screen");
 
 	LOG("Loading Intro assets");
 	bool ret = true;
