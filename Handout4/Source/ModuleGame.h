@@ -17,6 +17,7 @@ class Shape;
 
 class b2RevoluteJoint;
 class b2PrismaticJoint;
+class ModuleUI;
 
 
 class ModuleGame : public Module
@@ -36,6 +37,7 @@ public:
 public:
 
 	std::vector<PhysicEntity*> entities;
+	ModuleUI* ui;
 	
 	PhysBody* sensor;
 	bool sensed;
@@ -76,11 +78,13 @@ public:
 	bool mort;
 	bool returnMain;
 	int vides;
+	int puntuacio;
 
 	vec2<int> ray;
 	bool ray_on;
 	int velocitatPalanca;
 	int forcaImpuls;
 	Vector2 startPos;
+	bool mollaLliberada;
 
 };

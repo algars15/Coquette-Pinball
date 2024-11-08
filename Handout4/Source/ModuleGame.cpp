@@ -4,6 +4,7 @@
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
+#include "ModuleUI.h"
 
 class PhysicEntity
 {
@@ -149,11 +150,15 @@ bool ModuleGame::Start()
 	flipperSound = App-> audio->LoadFx("Assets/flipper.wav");
 	bouncerSound = App-> audio->LoadFx("Assets/bonus.wav");
 	
+	ui = new ModuleUI(App);
+	ui->Start();
+
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 4;
 	startPos = { 465, 310 };
+	mollaLliberada = true;
 
 	//MAPA
 	int map[82] = {
@@ -336,9 +341,9 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map, false));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map, false, REBOTADOR));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map, false, REBOTADOR));
-	App->physics->CreateCircle(168, 168, 13, b2_staticBody, REBOTADOR);
-	App->physics->CreateCircle(296, 168, 13, b2_staticBody, REBOTADOR);
-	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
+	App->physics->CreateCircle(168, 168, 13, b2_staticBody, BOLA_REBOTADORA);
+	App->physics->CreateCircle(296, 168, 13, b2_staticBody, BOLA_REBOTADORA);
+	App->physics->CreateCircle(232, 88, 13, b2_staticBody, BOLA_REBOTADORA);
 
 
 	//MOLLA
@@ -375,6 +380,7 @@ bool ModuleGame::Start()
 
 void ModuleGame::RestartGame()
 {
+	puntuacio = 0;
 	mort = false;
 	returnMain = false;
 	vides = 4;
@@ -404,12 +410,18 @@ update_status ModuleGame::Update()
 	{
 		jointMolla->SetMotorSpeed(5.0f);        
 		jointMolla->SetMaxMotorForce(5.0f);
-		App->audio->PlayFx(springSound);
+		mollaLliberada = false;
+		
 	}
 	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
 	{
 		jointMolla->SetMotorSpeed(-200.0f);
 		jointMolla->SetMaxMotorForce(200.0f);
+		if (!mollaLliberada)
+		{
+			mollaLliberada = true;
+			App->audio->PlayFx(springSound);
+		}
 	}
 	else
 	{
@@ -418,11 +430,10 @@ update_status ModuleGame::Update()
 		jointMolla->SetMaxMotorForce(0);
 	}
 
-	
-
 	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
 	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
 
+	ui->Update();
 
 	// Prepare for raycast ------------------------------------------------------
 	
@@ -447,8 +458,10 @@ update_status ModuleGame::Update()
 				ray_hit = hit;
 			}
 		}
-		DrawTexture(pimball_map2, 0, 0, WHITE);
+		
 	}
+	DrawTexture(pimball_map2, 0, 0, WHITE);
+	ui->Draw(puntuacio, vides);
 	
 
 	// ray -----------------
@@ -508,11 +521,20 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 		{
 			case REBOTADOR:
 			{
-				TraceLog(LOG_INFO, "ENTRA");
 				b2Vec2 impulseForce;
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+				break;
+			}
+			case BOLA_REBOTADORA:
+			{
+				b2Vec2 impulseForce;
+				impulseForce.x = normal.x * forcaImpuls;
+				impulseForce.y = normal.y * forcaImpuls;
+				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+				puntuacio += 100;
+				ui->ShowPuntuation(100, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
 				App->audio->PlayFx(bouncerSound);
 				break;
 			}
