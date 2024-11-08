@@ -166,8 +166,8 @@ bool ModuleGame::Start()
 	417, 52,
 	438, 66,
 	447, 95,
-	447, 480,
-	480, 480,
+	447, 620,
+	480, 620,
 	480, 70,
 	474, 41,
 	453, 15,
@@ -314,7 +314,7 @@ bool ModuleGame::Start()
 	160, 540,
 	};
 
-	//entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
+	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map3, 20, this, pimball_map));
@@ -326,15 +326,12 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map));
 
-
-	molla = new Box(App->physics, 450+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
+	//MOLLA
+	molla = new Box(App->physics, 448+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
 	molla->body->body->SetGravityScale(0);
 	entities.emplace_back(molla);
 
-	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 450, 480, 480, 480);
-
-
-
+	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 448, 480, 480, 480);
 
 
 	//PALANCAS
@@ -352,6 +349,7 @@ bool ModuleGame::Start()
 
 	jointPalancaIzquierda = App->physics->CreateRevoluteJoint(palancaIzquierda->body, unionPalancaIzquierda, unionPalancaIzquierda->body->GetWorldCenter(), { -0.50, 0.50 });
 	jointPalancaDerecha = App->physics->CreateRevoluteJoint(palancaDerecha->body, unionPalancaDerecha, unionPalancaDerecha->body->GetWorldCenter(), { -0.50, 0.50 });
+
 
 	//BOLAS REBOTADORAS
 
@@ -390,14 +388,29 @@ update_status ModuleGame::Update()
 		entities.emplace_back(new Box(App->physics, GetMouseX(), GetMouseY(), palancaTexture.width, palancaTexture.height, this, palancaTexture));
 	}
 
-	if (IsKeyDown(KEY_DOWN)) {
-		jointMolla->SetMotorSpeed(10);
-		jointMolla->SetMaxMotorForce(10);
-		
+	float translation = jointMolla->GetJointTranslation();
+	float upperLimit = jointMolla->GetUpperLimit();
+	float lowerLimit = jointMolla->GetLowerLimit();
+
+
+	if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
+	{
+		jointMolla->SetMotorSpeed(5.0f);        
+		jointMolla->SetMaxMotorForce(5.0f);    
 	}
-	else {
-		jointMolla->SetMotorSpeed(-10);
+	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
+	{
+		jointMolla->SetMotorSpeed(-100.0f);
+		jointMolla->SetMaxMotorForce(100.0f);
 	}
+	else
+	{
+		molla->body->body->SetLinearVelocity({0,0});
+		jointMolla->SetMotorSpeed(0);       
+		jointMolla->SetMaxMotorForce(0);
+	}
+
+	
 
 	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
 	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);

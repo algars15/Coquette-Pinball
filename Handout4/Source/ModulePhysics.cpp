@@ -405,7 +405,7 @@ b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, i
 	jointDef.lowerTranslation = 0;
 	jointDef.upperTranslation = 2.6f;
 	jointDef.enableMotor = true;
-	jointDef.maxMotorForce = 0.0f;
+	jointDef.maxMotorForce = 1000.0f;
 	jointDef.motorSpeed = 0;
 	
 
