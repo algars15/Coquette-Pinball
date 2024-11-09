@@ -142,7 +142,6 @@ bool ModuleGame::Start()
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
-	loseScreen = LoadTexture("Assets/lose_screen.png");
 	spring = LoadTexture("Assets/Spring.png");
 	pimball_map2 = LoadTexture("Assets/map2.png");
 	
@@ -154,7 +153,6 @@ bool ModuleGame::Start()
 	ui = new ModuleUI(App);
 	ui->Start();
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 4;
 	startPos = { 465, 310 };
@@ -345,7 +343,10 @@ bool ModuleGame::Start()
 	App->physics->CreateCircle(168, 168, 13, b2_staticBody, BOLA_REBOTADORA);
 	App->physics->CreateCircle(296, 168, 13, b2_staticBody, BOLA_REBOTADORA);
 	App->physics->CreateCircle(232, 88, 13, b2_staticBody, BOLA_REBOTADORA);
-
+	
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
+	sensor = App->physics->CreateRectangleSensor(200, 375, 30, 2, b2_staticBody, PASARELA);
+	sensor = App->physics->CreateRectangleSensor(245, 375, 30, 2, b2_staticBody, PASARELA);
 
 	//MOLLA
 	molla = new Box(App->physics, 448+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
@@ -536,13 +537,15 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 
 void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 {
-	if (bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA || bodyB->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA_EXTRA)
+	if (!mort)
 	{
-		PhysBody* bola = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyA : bodyA;
-		PhysBody* object = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyB : bodyA;
-
-		switch (object->objectType)
+		if (bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA || bodyB->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA_EXTRA)
 		{
+			PhysBody* bola = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyA : bodyA;
+			PhysBody* object = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyB : bodyA;
+
+			switch (object->objectType)
+			{
 			case REBOTADOR:
 			{
 				b2Vec2 impulseForce;
@@ -557,12 +560,30 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
-				
+
 				App->audio->PlayFx(bouncerSound);
 
 				comboCounter++;
-				comboCounter > 10 ? 10 : comboCounter;
-				puntuacio += 100*comboCounter;
+				comboCounter = (comboCounter > 10) ? 10 : comboCounter;
+				puntuacio += 100 * comboCounter;
+				timerCombo = timeToCombo;
+				ui->ShowPuntuation(100 * comboCounter, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
+
+				if (comboCounter == 3)
+				{
+					createNewBall = true;
+				}
+
+				break;
+			}
+			case PASARELA:
+			{
+				App->audio->PlayFx(bouncerSound);
+
+				comboCounter++;
+				comboCounter = (comboCounter > 10) ? 10 : comboCounter;
+
+				puntuacio += 100 * comboCounter;
 				timerCombo = timeToCombo;
 				ui->ShowPuntuation(100 * comboCounter, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
 
@@ -575,10 +596,11 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 			}
 			case DETECTOR_MORT:
 				if (bola->objectType == BOLA) respawn = true;
-				
+
 				break;
 			default:
 				break;
+			}
 		}
 	}
 }

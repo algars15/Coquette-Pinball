@@ -49,7 +49,6 @@ public:
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
-	Texture2D loseScreen;
 	Texture2D spring;
 	Texture2D springTop;
 	Texture2D springBottom;

@@ -23,7 +23,8 @@ enum ObjectType
 	MUELLE,
 	REBOTADOR,
 	BOLA_REBOTADORA,
-	DETECTOR_MORT
+	DETECTOR_MORT,
+	PASARELA
 };
 
 // Small class to return to other modules to track position and rotation of physics bodies

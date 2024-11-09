@@ -407,7 +407,6 @@ b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, i
 	
 
 	b2PrismaticJointDef jointDef;
-	//jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
 	jointDef.Initialize(ground, body->body, ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
 	jointDef.enableLimit = true;
 	jointDef.lowerTranslation = 0;
