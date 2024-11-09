@@ -2,6 +2,7 @@
 
 #include "ModuleRender.h"
 #include "ModuleGame.h"
+#include "ModuleWindow.h"
 #include "ModuleUI.h"
 #include "Module.h"
 #include "Application.h"
@@ -21,8 +22,23 @@ bool ModuleUI::Start()
 {
 	
 	duracionFlotante = 2;
-	LOG("Loading Intro assets");
+	LOG("Loading Intro assets"); 
+	vidasIcon = LoadTexture("Assets/Vidas.png");
+	puntosIcon = LoadTexture("Assets/Puntos.png");
+	posVidas = { 10, 50 };
+	posPuntos = {10, 10};
 	bool ret = true;
+
+	floatingPuntuationColors[0] = DARKBLUE;      
+	floatingPuntuationColors[1] = BLUE;
+	floatingPuntuationColors[2] = SKYBLUE;
+	floatingPuntuationColors[3] = GREEN;
+	floatingPuntuationColors[4] = LIME;
+	floatingPuntuationColors[5] = YELLOW;
+	floatingPuntuationColors[6] = GOLD;
+	floatingPuntuationColors[7] = ORANGE;
+	floatingPuntuationColors[8] = RED;
+	floatingPuntuationColors[9] = MAROON;
 
 
 	return ret;
@@ -59,14 +75,16 @@ void ModuleUI::Draw(int puntuation, int lives)
 	{
 		char buffer[16];
 		sprintf_s(buffer, "%d", puntuacionesFlotantes[i]->puntuacion);
-		DrawText(buffer, puntuacionesFlotantes[i]->x, puntuacionesFlotantes[i]->y, 32, WHITE);
+		DrawText(buffer, puntuacionesFlotantes[i]->x, puntuacionesFlotantes[i]->y, 32, floatingPuntuationColors[puntuacionesFlotantes[i]->puntuacion /100]);
 	}
+	DrawTexture(puntosIcon, posPuntos.x, posPuntos.y, WHITE);
 	char puntuacion[16];
 	sprintf_s(puntuacion, "%d", puntuation);
-	DrawText(puntuacion, 30, 30, 32, WHITE);
+	DrawText(puntuacion, posPuntos.x + puntosIcon.width + 10, posPuntos.y + 5, 32, WHITE);
+	DrawTexture(vidasIcon, posVidas.x, posVidas.y, WHITE);
 	char vidas[16];
 	sprintf_s(vidas, "%d", lives);
-	DrawText(vidas, 30, 60, 32, WHITE);
+	DrawText(vidas, posVidas.x + vidasIcon.width + 10, posVidas.y+5, 32, WHITE);
 }
 
 

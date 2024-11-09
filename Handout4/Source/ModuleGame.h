@@ -45,6 +45,7 @@ public:
 	Texture2D pimball_map;
 	Texture2D pimball_map2;
 	Texture2D circle;
+	Texture2D circle_extra;
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
@@ -77,6 +78,7 @@ public:
 
 	bool mort;
 	bool returnMain;
+	bool createNewBall;
 	int vides;
 	int puntuacio;
 
@@ -86,5 +88,8 @@ public:
 	int forcaImpuls;
 	Vector2 startPos;
 	bool mollaLliberada;
+	float timerCombo;
+	float timeToCombo;
+	int comboCounter;
 
 };

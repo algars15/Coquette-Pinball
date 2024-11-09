@@ -29,4 +29,9 @@ private:
 
 	std::vector<PuntuacionFlotante*> puntuacionesFlotantes;
 	int duracionFlotante;
+	Vector2 posVidas;
+	Vector2 posPuntos;
+	Texture2D vidasIcon;
+	Texture2D puntosIcon;
+	Color floatingPuntuationColors[10];
 };

@@ -18,6 +18,7 @@ enum ObjectType
 {
 	UNKNOWN,
 	BOLA,
+	BOLA_EXTRA,
 	PALANCA,
 	MUELLE,
 	REBOTADOR,

@@ -138,6 +138,7 @@ bool ModuleGame::Start()
 
 	pimball_map = LoadTexture("Assets/map.png");
 	circle = LoadTexture("Assets/bola2.png"); 
+	circle_extra= LoadTexture("Assets/bolaExtra.png"); 
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
@@ -153,12 +154,12 @@ bool ModuleGame::Start()
 	ui = new ModuleUI(App);
 	ui->Start();
 
-
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 4;
 	startPos = { 465, 310 };
 	mollaLliberada = true;
+	timeToCombo = 5;
 
 	//MAPA
 	int map[82] = {
@@ -387,6 +388,8 @@ void ModuleGame::RestartGame()
 	bola->body->body->SetLinearVelocity({ 0,0 });
 	bola->body->body->SetAngularVelocity({ 0 });
 	bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+	timerCombo = 0;
+	comboCounter = 0;
 }
 
 
@@ -432,6 +435,35 @@ update_status ModuleGame::Update()
 
 	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
 	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
+
+	timerCombo -= GetFrameTime();
+	if (timerCombo <= 0)
+	{
+		comboCounter = 0;
+	}
+
+	if (createNewBall)
+	{
+		entities.emplace_back(new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle_extra, true, BOLA_EXTRA));
+		createNewBall = false;
+	}
+
+	if (mort) {
+		vides--;
+		mort = false;
+		if (vides <= 0) {
+			returnMain = true;
+		}
+
+		else {
+
+			bola->body->body->SetLinearVelocity({ 0,0 });
+			bola->body->body->SetAngularVelocity({ 0 });
+			bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+		}
+
+		//TraceLog(LOG_INFO, "hola");
+	}
 
 	ui->Update();
 
@@ -479,22 +511,7 @@ update_status ModuleGame::Update()
 		}
 	}
 
-	if (mort) {
-		vides--;
-		mort = false;
-		if (vides <= 0) {
-			returnMain = true;
-		}
 
-		else{
-
-			bola->body->body->SetLinearVelocity({0,0});
-			bola->body->body->SetAngularVelocity({0});
-			bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
-		}
-		
-		//TraceLog(LOG_INFO, "hola");
-	}
 
 	return UPDATE_CONTINUE;
 }
@@ -512,10 +529,10 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 
 void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 {
-	if (bodyA->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA)
+	if (bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA || bodyB->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA_EXTRA)
 	{
-		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyA;
-		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
+		PhysBody* bola = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyA : bodyA;
+		PhysBody* object = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyB : bodyA;
 
 		switch (object->objectType)
 		{
@@ -533,13 +550,25 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
-				puntuacio += 100;
-				ui->ShowPuntuation(100, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
+				
 				App->audio->PlayFx(bouncerSound);
+
+				comboCounter++;
+				comboCounter > 10 ? 10 : comboCounter;
+				puntuacio += 100*comboCounter;
+				timerCombo = timeToCombo;
+				ui->ShowPuntuation(100 * comboCounter, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
+
+				if (comboCounter == 3)
+				{
+					createNewBall = true;
+				}
+
 				break;
 			}
 			case DETECTOR_MORT:
-				mort = true;
+				if (bola->objectType == BOLA) mort = true;
+				
 				break;
 			default:
 				break;
