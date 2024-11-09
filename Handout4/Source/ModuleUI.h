@@ -21,7 +21,7 @@ public:
 
 	bool Start();
 	update_status Update();
-	void Draw(int puntuation, int lives);
+	void Draw(int puntuation, int lives, bool mort);
 	void ShowPuntuation(int puntuacion, int x, int y);
 	bool CleanUp();
 
@@ -31,6 +31,7 @@ private:
 	int duracionFlotante;
 	Vector2 posVidas;
 	Vector2 posPuntos;
+	Vector2 posDerrota;
 	Texture2D vidasIcon;
 	Texture2D puntosIcon;
 	Color floatingPuntuationColors[10];

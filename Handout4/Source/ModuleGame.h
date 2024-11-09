@@ -77,6 +77,7 @@ public:
 	uint32 bouncerSound;
 
 	bool mort;
+	bool respawn;
 	bool returnMain;
 	bool createNewBall;
 	int vides;

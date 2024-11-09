@@ -383,6 +383,7 @@ void ModuleGame::RestartGame()
 {
 	puntuacio = 0;
 	mort = false;
+	respawn = false;
 	returnMain = false;
 	vides = 4;
 	bola->body->body->SetLinearVelocity({ 0,0 });
@@ -408,33 +409,39 @@ update_status ModuleGame::Update()
 	float upperLimit = jointMolla->GetUpperLimit();
 	float lowerLimit = jointMolla->GetLowerLimit();
 
-
-	if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
+	if (!mort)
 	{
-		jointMolla->SetMotorSpeed(5.0f);        
-		jointMolla->SetMaxMotorForce(5.0f);
-		mollaLliberada = false;
-		
-	}
-	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
-	{
-		jointMolla->SetMotorSpeed(-200.0f);
-		jointMolla->SetMaxMotorForce(200.0f);
-		if (!mollaLliberada)
+		if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
 		{
-			mollaLliberada = true;
-			App->audio->PlayFx(springSound);
+			jointMolla->SetMotorSpeed(5.0f);
+			jointMolla->SetMaxMotorForce(5.0f);
+			mollaLliberada = false;
+
 		}
+		else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
+		{
+			jointMolla->SetMotorSpeed(-200.0f);
+			jointMolla->SetMaxMotorForce(200.0f);
+			if (!mollaLliberada)
+			{
+				mollaLliberada = true;
+				App->audio->PlayFx(springSound);
+			}
+		}
+		else
+		{
+			molla->body->body->SetLinearVelocity({ 0,0 });
+			jointMolla->SetMotorSpeed(0);
+			jointMolla->SetMaxMotorForce(0);
+		}
+
+		UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
+		UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
 	}
 	else
 	{
-		molla->body->body->SetLinearVelocity({0,0});
-		jointMolla->SetMotorSpeed(0);       
-		jointMolla->SetMaxMotorForce(0);
+		if (IsKeyPressed(KEY_SPACE)) returnMain = true;
 	}
-
-	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
-	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
 
 	timerCombo -= GetFrameTime();
 	if (timerCombo <= 0)
@@ -448,11 +455,11 @@ update_status ModuleGame::Update()
 		createNewBall = false;
 	}
 
-	if (mort) {
+	if (respawn) {
 		vides--;
-		mort = false;
+		respawn = false;
 		if (vides <= 0) {
-			returnMain = true;
+			mort = true;
 		}
 
 		else {
@@ -493,7 +500,7 @@ update_status ModuleGame::Update()
 		
 	}
 	DrawTexture(pimball_map2, 0, 0, WHITE);
-	ui->Draw(puntuacio, vides);
+	ui->Draw(puntuacio, vides, mort);
 	
 
 	// ray -----------------
@@ -567,7 +574,7 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				break;
 			}
 			case DETECTOR_MORT:
-				if (bola->objectType == BOLA) mort = true;
+				if (bola->objectType == BOLA) respawn = true;
 				
 				break;
 			default:
