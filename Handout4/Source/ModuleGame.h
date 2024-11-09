@@ -17,6 +17,7 @@ class Shape;
 
 class b2RevoluteJoint;
 class b2PrismaticJoint;
+class ModuleUI;
 
 
 class ModuleGame : public Module
@@ -36,6 +37,7 @@ public:
 public:
 
 	std::vector<PhysicEntity*> entities;
+	ModuleUI* ui;
 	
 	PhysBody* sensor;
 	bool sensed;
@@ -43,10 +45,10 @@ public:
 	Texture2D pimball_map;
 	Texture2D pimball_map2;
 	Texture2D circle;
+	Texture2D circle_extra;
 	Texture2D box;
 	Texture2D palancaTexture;
 	Texture2D palanca_invertida;
-	Texture2D loseScreen;
 	Texture2D spring;
 	Texture2D springTop;
 	Texture2D springBottom;
@@ -74,17 +76,20 @@ public:
 	uint32 bouncerSound;
 
 	bool mort;
+	bool respawn;
 	bool returnMain;
+	bool createNewBall;
 	int vides;
-	//score
-	int score;
-	int record;
-	int previous;
+	int puntuacio;
 
 	vec2<int> ray;
 	bool ray_on;
 	int velocitatPalanca;
 	int forcaImpuls;
 	Vector2 startPos;
+	bool mollaLliberada;
+	float timerCombo;
+	float timeToCombo;
+	int comboCounter;
 
 };

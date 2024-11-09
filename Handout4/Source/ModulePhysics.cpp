@@ -268,7 +268,12 @@ update_status ModulePhysics::PostUpdate()
 			// test if the current body contains mouse position
 		}
 	}
+	
 
+	if (!debug) return UPDATE_CONTINUE;
+
+	
+	HandleMouseJoint();
 	// If a body was selected we will attach a mouse joint to it
 	// so we can pull it around
 	// TODO 2: If a body was selected, create a mouse joint
@@ -407,7 +412,6 @@ b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, i
 	
 
 	b2PrismaticJointDef jointDef;
-	//jointDef.Initialize(ground, body->body,ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
 	jointDef.Initialize(ground, body->body, ground->GetWorldCenter(), b2Vec2(0.0f, 1.0f));
 	jointDef.enableLimit = true;
 	jointDef.lowerTranslation = 0;
@@ -420,3 +424,50 @@ b2PrismaticJoint* ModulePhysics::CreatePrismaticJoint(PhysBody* body, int p1X, i
 	b2PrismaticJoint* joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
 	return joint;
 }
+
+void ModulePhysics::HandleMouseJoint()
+{
+	int mouseX = GetMouseX();
+	int mouseY = GetMouseY();
+	b2Vec2 mousePos(PIXEL_TO_METERS(mouseX), PIXEL_TO_METERS(mouseY));
+	
+	if (mouse_joint == nullptr && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+	{
+		for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
+		{
+			if (b->GetType() == b2_dynamicBody && ((PhysBody*)b->GetUserData().pointer)->Contains(mouseX, mouseY))
+			{
+				selected_body = b;
+				
+				b2MouseJointDef mouseJointDef;
+				mouseJointDef.bodyA = ground;
+				mouseJointDef.bodyB = selected_body;
+				mouseJointDef.target = mousePos;
+				mouseJointDef.maxForce = 3000.0f * selected_body->GetMass(); 
+				
+				mouse_joint = (b2MouseJoint*)world->CreateJoint(&mouseJointDef);
+
+				selected_body->SetAwake(true);
+				break;
+			}
+		}
+	}
+
+	if (mouse_joint)
+	{
+		if (IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+		{
+			mouse_joint->SetTarget(mousePos);
+
+			DrawLine(METERS_TO_PIXELS(mouse_joint->GetAnchorA().x), METERS_TO_PIXELS(mouse_joint->GetAnchorA().y),
+				METERS_TO_PIXELS(mouse_joint->GetAnchorB().x), METERS_TO_PIXELS(mouse_joint->GetAnchorB().y), RED);
+		}
+		else
+		{
+			world->DestroyJoint(mouse_joint);
+			mouse_joint = nullptr;
+			selected_body = nullptr;
+		}
+	}
+}
+

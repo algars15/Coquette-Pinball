@@ -4,6 +4,7 @@
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
+#include "ModuleUI.h"
 
 class PhysicEntity
 {
@@ -137,10 +138,10 @@ bool ModuleGame::Start()
 
 	pimball_map = LoadTexture("Assets/map.png");
 	circle = LoadTexture("Assets/bola2.png"); 
+	circle_extra= LoadTexture("Assets/bolaExtra.png"); 
 	box = LoadTexture("Assets/crate.png");
 	palancaTexture = LoadTexture("Assets/palanca.png");
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
-	loseScreen = LoadTexture("Assets/lose_screen.png");
 	spring = LoadTexture("Assets/Spring.png");
 	pimball_map2 = LoadTexture("Assets/map2.png");
 	
@@ -149,11 +150,14 @@ bool ModuleGame::Start()
 	flipperSound = App-> audio->LoadFx("Assets/flipper.wav");
 	bouncerSound = App-> audio->LoadFx("Assets/bonus.wav");
 	
+	ui = new ModuleUI(App);
+	ui->Start();
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	velocitatPalanca = 20;
 	forcaImpuls = 4;
 	startPos = { 465, 310 };
+	mollaLliberada = true;
+	timeToCombo = 5;
 
 	//MAPA
 	int map[82] = {
@@ -336,10 +340,13 @@ bool ModuleGame::Start()
 	entities.emplace_back(new Shape(App->physics, 0, 0, map8, 14, this, pimball_map, false));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map9, 10, this, pimball_map, false, REBOTADOR));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map10, 10, this, pimball_map, false, REBOTADOR));
-	App->physics->CreateCircle(168, 168, 13, b2_staticBody, REBOTADOR);
-	App->physics->CreateCircle(296, 168, 13, b2_staticBody, REBOTADOR);
-	App->physics->CreateCircle(232, 88, 13, b2_staticBody, REBOTADOR);
-
+	App->physics->CreateCircle(168, 168, 13, b2_staticBody, BOLA_REBOTADORA);
+	App->physics->CreateCircle(296, 168, 13, b2_staticBody, BOLA_REBOTADORA);
+	App->physics->CreateCircle(232, 88, 13, b2_staticBody, BOLA_REBOTADORA);
+	
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
+	sensor = App->physics->CreateRectangleSensor(200, 375, 30, 2, b2_staticBody, PASARELA);
+	sensor = App->physics->CreateRectangleSensor(245, 375, 30, 2, b2_staticBody, PASARELA);
 
 	//MOLLA
 	molla = new Box(App->physics, 448+spring.width/2, 480-spring.height/2, spring.width, spring.height, this, spring);
@@ -369,20 +376,22 @@ bool ModuleGame::Start()
 	//BOLA
 	bola = new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle, true, BOLA);
 	entities.emplace_back(bola);
-	//Score
-	record = 0;
+
 	return ret;
 }
 
 void ModuleGame::RestartGame()
 {
+	puntuacio = 0;
 	mort = false;
+	respawn = false;
 	returnMain = false;
 	vides = 4;
-	score = 0;
 	bola->body->body->SetLinearVelocity({ 0,0 });
 	bola->body->body->SetAngularVelocity({ 0 });
 	bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+	timerCombo = 0;
+	comboCounter = 0;
 }
 
 
@@ -401,29 +410,70 @@ update_status ModuleGame::Update()
 	float upperLimit = jointMolla->GetUpperLimit();
 	float lowerLimit = jointMolla->GetLowerLimit();
 
+	if (!mort)
+	{
+		if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
+		{
+			jointMolla->SetMotorSpeed(5.0f);
+			jointMolla->SetMaxMotorForce(5.0f);
+			mollaLliberada = false;
 
-	if (IsKeyDown(KEY_DOWN) && translation < upperLimit - 0.01f)
-	{
-		jointMolla->SetMotorSpeed(5.0f);        
-		jointMolla->SetMaxMotorForce(5.0f);
-		App->audio->PlayFx(springSound);
-	}
-	else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
-	{
-		jointMolla->SetMotorSpeed(-200.0f);
-		jointMolla->SetMaxMotorForce(200.0f);
+		}
+		else if (IsKeyUp(KEY_DOWN) && translation > lowerLimit + 0.01f)
+		{
+			jointMolla->SetMotorSpeed(-200.0f);
+			jointMolla->SetMaxMotorForce(200.0f);
+			if (!mollaLliberada)
+			{
+				mollaLliberada = true;
+				App->audio->PlayFx(springSound);
+			}
+		}
+		else
+		{
+			molla->body->body->SetLinearVelocity({ 0,0 });
+			jointMolla->SetMotorSpeed(0);
+			jointMolla->SetMaxMotorForce(0);
+		}
+
+		UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_LEFT), false);
+		UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_RIGHT), true);
 	}
 	else
 	{
-		molla->body->body->SetLinearVelocity({0,0});
-		jointMolla->SetMotorSpeed(0);       
-		jointMolla->SetMaxMotorForce(0);
+		if (IsKeyPressed(KEY_SPACE)) returnMain = true;
 	}
-	
 
-	UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_LEFT), false);
-	UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_RIGHT), true);
+	timerCombo -= GetFrameTime();
+	if (timerCombo <= 0)
+	{
+		comboCounter = 0;
+	}
 
+	if (createNewBall)
+	{
+		entities.emplace_back(new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle_extra, true, BOLA_EXTRA));
+		createNewBall = false;
+	}
+
+	if (respawn) {
+		vides--;
+		respawn = false;
+		if (vides <= 0) {
+			mort = true;
+		}
+
+		else {
+
+			bola->body->body->SetLinearVelocity({ 0,0 });
+			bola->body->body->SetAngularVelocity({ 0 });
+			bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+		}
+
+		//TraceLog(LOG_INFO, "hola");
+	}
+
+	ui->Update();
 
 	// Prepare for raycast ------------------------------------------------------
 	
@@ -448,8 +498,10 @@ update_status ModuleGame::Update()
 				ray_hit = hit;
 			}
 		}
-		DrawTexture(pimball_map2, 0, 0, WHITE);
+		
 	}
+	DrawTexture(pimball_map2, 0, 0, WHITE);
+	ui->Draw(puntuacio, vides, mort);
 	
 
 	// ray -----------------
@@ -467,26 +519,7 @@ update_status ModuleGame::Update()
 		}
 	}
 
-	if (mort) {
-		vides--;
-		mort = false;
-		if (vides <= 0) {
-			if (score >= record) {
-				record = score;
-				TraceLog(LOG_INFO, "%i", record);
-			}
-			returnMain = true;
-		}
 
-		else{
-
-			bola->body->body->SetLinearVelocity({0,0});
-			bola->body->body->SetAngularVelocity({0});
-			bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
-		}
-		
-		//TraceLog(LOG_INFO, "hola");
-	}
 
 	return UPDATE_CONTINUE;
 }
@@ -504,33 +537,70 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 
 void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 {
-	if (bodyA->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA)
+	if (!mort)
 	{
-		PhysBody* bola = bodyA->objectType == ObjectType::BOLA ? bodyA : bodyA;
-		PhysBody* object = bodyA->objectType == ObjectType::BOLA ? bodyB : bodyA;
-
-		switch (object->objectType)
+		if (bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA || bodyB->objectType == ObjectType::BOLA || bodyB->objectType == ObjectType::BOLA_EXTRA)
 		{
+			PhysBody* bola = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyA : bodyA;
+			PhysBody* object = bodyA->objectType == ObjectType::BOLA || bodyA->objectType == ObjectType::BOLA_EXTRA ? bodyB : bodyA;
+
+			switch (object->objectType)
+			{
 			case REBOTADOR:
 			{
-				/*TraceLog(LOG_INFO, "ENTRA");*/
-				TraceLog(LOG_INFO, "%i", score);
 				b2Vec2 impulseForce;
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+				break;
+			}
+			case BOLA_REBOTADORA:
+			{
+				b2Vec2 impulseForce;
+				impulseForce.x = normal.x * forcaImpuls;
+				impulseForce.y = normal.y * forcaImpuls;
+				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+
 				App->audio->PlayFx(bouncerSound);
-				score += 100;
+
+				comboCounter++;
+				comboCounter = (comboCounter > 10) ? 10 : comboCounter;
+				puntuacio += 100 * comboCounter;
+				timerCombo = timeToCombo;
+				ui->ShowPuntuation(100 * comboCounter, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
+
+				if (comboCounter == 3)
+				{
+					createNewBall = true;
+				}
+
+				break;
+			}
+			case PASARELA:
+			{
+				App->audio->PlayFx(bouncerSound);
+
+				comboCounter++;
+				comboCounter = (comboCounter > 10) ? 10 : comboCounter;
+
+				puntuacio += 100 * comboCounter;
+				timerCombo = timeToCombo;
+				ui->ShowPuntuation(100 * comboCounter, METERS_TO_PIXELS(bola->body->GetTransform().p.x), METERS_TO_PIXELS(bola->body->GetTransform().p.y));
+
+				if (comboCounter == 3)
+				{
+					createNewBall = true;
+				}
+
 				break;
 			}
 			case DETECTOR_MORT:
-				//Record
-				previous = score - previous;
-				TraceLog(LOG_INFO, "%i", previous);
-				mort = true;
+				if (bola->objectType == BOLA) respawn = true;
+
 				break;
 			default:
 				break;
+			}
 		}
 	}
 }

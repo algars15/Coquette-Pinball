@@ -18,7 +18,7 @@ bool ModuleRender::Init()
 {
 	LOG("Creating Renderer context");
 	bool ret = true;
-    bool fps = false;
+    bool debug = false;
 
 	return ret;
 }
@@ -33,6 +33,10 @@ update_status ModuleRender::PreUpdate()
 update_status ModuleRender::Update()
 {
     ClearBackground(background);
+    if (IsKeyPressed(KEY_F1))
+    {
+        debug = !debug;
+    }
 
     // NOTE: This function setups render batching system for
     // maximum performance, all consecutive Draw() calls are
@@ -46,12 +50,7 @@ update_status ModuleRender::Update()
 update_status ModuleRender::PostUpdate()
 {
     // Draw everything in our batch!
-    //Debug fps
-    if (IsKeyPressed(KEY_F1))
-    {
-        fps = !fps;
-    }
-    if (fps) {
+    if (debug) {
         DrawFPS(10, 10);
     }
     EndDrawing();
