@@ -672,6 +672,7 @@ void ModuleGame::SaveGame(int hightScore) {
 	
 	if (puntuacio > highScore)
 	{
+		TraceLog(LOG_INFO, "Guardando nuevo maximo puntuaje.");
 		std::ofstream file("HighScore.txt");
 
 		if (file.is_open()) {
