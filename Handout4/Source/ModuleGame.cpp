@@ -152,6 +152,12 @@ bool ModuleGame::Start()
 	springSound = App-> audio->LoadFx("Assets/springy.wav");
 	flipperSound = App-> audio->LoadFx("Assets/flipper.wav");
 	bouncerSound = App-> audio->LoadFx("Assets/bonus.wav");
+	song = App-> audio->LoadFx("Assets/intro song.wav");
+	hitSound = App-> audio->LoadFx("Assets/hit.wav");
+	fallSound = App-> audio->LoadFx("Assets/ball-falls.wav");
+	pasarela = App-> audio->LoadFx("Assets/magic.wav");
+	newBallSound = App-> audio->LoadFx("Assets/new-ball.wav");
+	boingSound = App-> audio->LoadFx("Assets/boing.wav");
 	
 	ui = new ModuleUI(App);
 	ui->Start();
@@ -491,6 +497,8 @@ update_status ModuleGame::Update()
 		bolaToEnable->body->SetLinearVelocity({ 0,0 });
 		bolaToEnable->body->SetAngularVelocity({ 0 });
 		bolaToEnable->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+		App->audio->PlayFx(newBallSound);
+
 		
 		bolaToEnable = nullptr;
 	}
@@ -568,7 +576,7 @@ void ModuleGame::UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool righ
 {
 	if (isPressed) {
 		joint->SetMotorSpeed(right ? -velocitatPalanca : velocitatPalanca);
-		
+		//App->audio->PlayFx(flipperSound);
 	}
 	else {
 		joint->SetMotorSpeed(right ? velocitatPalanca/4 : -velocitatPalanca/4);
@@ -592,6 +600,10 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				impulseForce.x = normal.x * forcaImpuls;
 				impulseForce.y = normal.y * forcaImpuls;
 				bola->body->ApplyLinearImpulseToCenter(impulseForce, true);
+
+				App->audio->PlayFx(boingSound);
+
+
 				break;
 			}
 			case BOLA_REBOTADORA:
@@ -625,7 +637,6 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 			}
 			case PASARELA:
 			{
-				App->audio->PlayFx(bouncerSound);
 
 				comboCounter++;
 				comboCounter = (comboCounter > 10) ? 10 : comboCounter;
@@ -646,6 +657,8 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 					}
 				}
 
+				App->audio->PlayFx(pasarela);
+
 				break;
 			}
 			case DETECTOR_MORT:
@@ -654,6 +667,8 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				{
 					bolaToDisable = bola;
 				}
+
+				App->audio->PlayFx(fallSound);
 
 				break;
 			default:

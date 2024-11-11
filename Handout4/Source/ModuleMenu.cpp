@@ -31,6 +31,9 @@ bool ModuleMenu::Start()
 	LOG("Loading Intro assets");
 	bool ret = true;
 
+    song = App->audio->LoadFx("Assets/intro song.wav");
+
+    App->audio->PlayFx(song);
 
 	return ret;
 }
@@ -42,6 +45,7 @@ update_status ModuleMenu::Update()
     char textoHighScore[50];
     sprintf_s(textoHighScore, "HS: %d", hightScore);
     DrawText(textoHighScore, App->window->GetWidth()/2-MeasureText(textoHighScore,32) / 2, 600, 32, WHITE);
+    
 	return UPDATE_CONTINUE;
 }
 

@@ -46,6 +46,7 @@ update_status ModuleScene::Update()
     if (state == MENU)
     {
         menu->Update();
+        
 
         if (IsKeyPressed(KEY_SPACE))
         {
