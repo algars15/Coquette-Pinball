@@ -4,6 +4,7 @@
 #include "Globals.h"
 
 #include "box2d.h"
+#include <vector>
 
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y -7.0f
@@ -72,6 +73,7 @@ public:
 
 private:
 
+	std::vector<PhysBody*> list_physBodys;
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;

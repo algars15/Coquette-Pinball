@@ -25,8 +25,6 @@ bool ModuleScene::Start()
     menu->Start();
     game = new ModuleGame(App);
     game->Start();
-    lose = new ModuleMenu(App);
-    lose->Start();
 
 	state = MENU;
 
@@ -116,6 +114,10 @@ update_status ModuleScene::Update()
 // Load assets
 bool ModuleScene::CleanUp()
 {
+    menu->CleanUp();
+    game->CleanUp();
+    delete menu;
+    delete game;
 	LOG("Unloading Intro scene");
 
 	return true;

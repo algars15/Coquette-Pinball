@@ -102,6 +102,12 @@ void ModuleUI::Draw(int puntuation, int lives, bool mort)
 
 bool ModuleUI::CleanUp()
 {
+	for (auto it = puntuacionesFlotantes.rbegin(); it != puntuacionesFlotantes.rend(); ++it)
+	{
+		PuntuacionFlotante* item = *it;
+		delete item;
+	}
+
 	LOG("Unloading Intro scene");
 
 	return true;

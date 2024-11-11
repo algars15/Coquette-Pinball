@@ -9,6 +9,7 @@
 
 #include "Application.h"
 
+
 Application::Application()
 {
 	window = new ModuleWindow(this);
@@ -41,7 +42,6 @@ Application::~Application()
 		delete item;
 	}
 	list_modules.clear();
-	
 }
 
 bool Application::Init()
@@ -106,6 +106,7 @@ update_status Application::Update()
 
 bool Application::CleanUp()
 {
+
 	bool ret = true;
 	for (auto it = list_modules.rbegin(); it != list_modules.rend() && ret; ++it)
 	{
@@ -114,6 +115,8 @@ bool Application::CleanUp()
 	}
 	
 	return ret;
+
+	
 }
 
 void Application::AddModule(Module* mod)

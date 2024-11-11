@@ -84,6 +84,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colli
 	pbody->width = pbody->height = radius;
 	pbody->objectType = objectType;
 
+	list_physBodys.push_back(pbody);
 	return pbody;
 }
 
@@ -111,6 +112,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2
 	pbody->height = (int)(height * 0.5f);
 	pbody->objectType = objectType;
 
+	list_physBodys.push_back(pbody);
 	return pbody;
 }
 
@@ -141,6 +143,7 @@ PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int heig
 	pbody->height = height;
 	pbody->objectType = objectType;
 
+	list_physBodys.push_back(pbody);
 	return pbody;
 }
 
@@ -177,6 +180,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, const int* points, int size, 
 	pbody->width = pbody->height = 0;
 	pbody->objectType = objectType;
 
+	list_physBodys.push_back(pbody);
 	return pbody;
 }
 
@@ -288,6 +292,11 @@ update_status ModulePhysics::PostUpdate()
 bool ModulePhysics::CleanUp()
 {
 	LOG("Destroying physics world");
+	for (auto it = list_physBodys.rbegin(); it != list_physBodys.rend(); ++it)
+	{
+		PhysBody* item = *it;
+		delete item;
+	}
 
 	// Delete the whole physics world!
 	delete world;

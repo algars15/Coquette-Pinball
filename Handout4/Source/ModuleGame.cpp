@@ -7,6 +7,8 @@
 #include "ModuleUI.h"
 #include "fstream"
 
+
+
 class PhysicEntity
 {
 protected:
@@ -356,10 +358,9 @@ bool ModuleGame::Start()
 
 	jointMolla = App->physics->CreatePrismaticJoint(molla->body, 448, 480, 480, 480);
 
-
 	//PALANCAS
 	palancaIzquierda = new Box(App->physics, 210 - palanca_invertida.width / 2, 604 + palanca_invertida.height / 2, palanca_invertida.width, palanca_invertida.height, this, palanca_invertida, true,  PALANCA);
-	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, true, PALANCA); 
+	palancaDerecha = new Box(App->physics, 298 - palancaTexture.width / 2, 604 + palancaTexture.height / 2, palancaTexture.width, palancaTexture.height, this, palancaTexture, true, PALANCA);
 
 	palancaIzquierda->body->body->SetGravityScale(0);
 	palancaDerecha->body->body->SetGravityScale(0);
@@ -417,6 +418,14 @@ void ModuleGame::RestartGame()
 // Load assets
 bool ModuleGame::CleanUp()
 {
+	for (auto it = entities.rbegin(); it != entities.rend(); ++it)
+	{
+		PhysicEntity* item = *it;
+		delete item;
+	}
+	entities.clear();
+	ui->CleanUp();
+	delete ui;
 	LOG("Unloading Intro scene");
 
 	return true;
