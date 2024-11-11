@@ -102,6 +102,7 @@ update_status ModuleScene::Update()
         {
             fadeState = FADEIN;
             if (!toMenu) game->RestartGame();
+            else menu->LoadHightScore();
         }
 
         // Dibujar fade

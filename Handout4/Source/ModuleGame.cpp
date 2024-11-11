@@ -5,6 +5,7 @@
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
 #include "ModuleUI.h"
+#include "fstream"
 
 class PhysicEntity
 {
@@ -377,6 +378,17 @@ bool ModuleGame::Start()
 	bola = new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle, true, BOLA);
 	entities.emplace_back(bola);
 
+
+	//BOLAS EXTRAS
+	for (int i = 0; i < 5; i++)
+	{
+		Circle* extraBall = new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle_extra, true, BOLA_EXTRA);
+		entities.emplace_back(extraBall);
+		bolasExtras.emplace_back(extraBall);
+	}
+	
+
+
 	return ret;
 }
 
@@ -392,6 +404,13 @@ void ModuleGame::RestartGame()
 	bola->body->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
 	timerCombo = 0;
 	comboCounter = 0;
+	for (Circle* bola : bolasExtras)
+	{
+		bola->body->body->SetTransform({ PIXEL_TO_METERS(-100),PIXEL_TO_METERS(-100) }, 0);
+		bola->body->body->SetEnabled(false);
+	}
+	bolaToDisable = nullptr;
+	bolaToEnable = nullptr;
 }
 
 
@@ -450,10 +469,21 @@ update_status ModuleGame::Update()
 		comboCounter = 0;
 	}
 
-	if (createNewBall)
+	if (bolaToDisable != nullptr)
 	{
-		entities.emplace_back(new Circle(App->physics, startPos.x, startPos.y, circle.width / 2, this, circle_extra, true, BOLA_EXTRA));
-		createNewBall = false;
+		bolaToDisable->body->SetTransform({ PIXEL_TO_METERS(-100),PIXEL_TO_METERS(-100) }, 0);
+		bolaToDisable->body->SetEnabled(false);
+		bolaToDisable = nullptr;
+	}
+
+	if (bolaToEnable != nullptr)
+	{
+		bolaToEnable->body->SetEnabled(true);
+		bolaToEnable->body->SetLinearVelocity({ 0,0 });
+		bolaToEnable->body->SetAngularVelocity({ 0 });
+		bolaToEnable->body->SetTransform({ PIXEL_TO_METERS(startPos.x),PIXEL_TO_METERS(startPos.y) }, 0);
+		
+		bolaToEnable = nullptr;
 	}
 
 	if (respawn) {
@@ -461,6 +491,7 @@ update_status ModuleGame::Update()
 		respawn = false;
 		if (vides <= 0) {
 			mort = true;
+			SaveGame(puntuacio);
 		}
 
 		else {
@@ -571,7 +602,14 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 
 				if (comboCounter == 3)
 				{
-					createNewBall = true;
+					for (Circle* b : bolasExtras)
+					{
+						if (!b->body->body->IsEnabled())
+						{
+							bolaToEnable = b->body;
+							break;
+						}
+					}
 				}
 
 				break;
@@ -589,18 +627,59 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 
 				if (comboCounter == 3)
 				{
-					createNewBall = true;
+					for (Circle* b : bolasExtras)
+					{
+						if (!b->body->body->IsEnabled())
+						{
+							bolaToEnable = b->body;
+							break;
+						}
+					}
 				}
 
 				break;
 			}
 			case DETECTOR_MORT:
 				if (bola->objectType == BOLA) respawn = true;
+				if (bola->objectType == BOLA_EXTRA)
+				{
+					bolaToDisable = bola;
+				}
 
 				break;
 			default:
 				break;
 			}
+		}
+	}
+}
+
+void ModuleGame::SaveGame(int hightScore) {
+	
+	int highScore = 0;
+	std::ifstream file("HighScore.txt");
+
+	if (file.is_open()) {
+		file >> highScore;
+		file.close();
+	}
+	else {
+
+		std::ofstream newFile("HighScore.txt");
+		newFile << "0" << std::endl;  
+		newFile.close();
+	}
+	
+	if (puntuacio > highScore)
+	{
+		std::ofstream file("HighScore.txt");
+
+		if (file.is_open()) {
+			file << puntuacio << std::endl;
+			file.close();
+		}
+		else {
+			TraceLog(LOG_INFO, "Error al guardar el archivo de puntuaje.");
 		}
 	}
 }

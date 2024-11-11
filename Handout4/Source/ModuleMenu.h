@@ -14,10 +14,11 @@ public:
 
 	bool Start();
 	update_status Update();
+	void LoadHightScore();
 	bool CleanUp();
 
 private:
 	
 	Texture2D menuTexture;
-	Texture2D loseTexture;
+	int hightScore;
 };

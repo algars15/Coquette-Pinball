@@ -31,8 +31,8 @@ private:
 	int duracionFlotante;
 	Vector2 posVidas;
 	Vector2 posPuntos;
-	Vector2 posDerrota;
 	Texture2D vidasIcon;
 	Texture2D puntosIcon;
+	Texture2D loseScreen;
 	Color floatingPuntuationColors[10];
 };
