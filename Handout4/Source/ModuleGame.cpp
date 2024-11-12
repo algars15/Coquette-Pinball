@@ -470,8 +470,8 @@ update_status ModuleGame::Update()
 			jointMolla->SetMaxMotorForce(0);
 		}
 
-		UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_A), false);
-		UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_D), true);
+		UpdateFlipper(jointPalancaIzquierda, IsKeyDown(KEY_LEFT), false);
+		UpdateFlipper(jointPalancaDerecha, IsKeyDown(KEY_RIGHT), true);
 	}
 	else
 	{
