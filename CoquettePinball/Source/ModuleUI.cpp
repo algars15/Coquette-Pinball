@@ -78,7 +78,7 @@ void ModuleUI::Draw(int puntuation, int lives, bool mort)
 		{
 			char buffer[16];
 			sprintf_s(buffer, "%d", puntuacionesFlotantes[i]->puntuacion);
-			DrawText(buffer, puntuacionesFlotantes[i]->x, puntuacionesFlotantes[i]->y, 32, floatingPuntuationColors[puntuacionesFlotantes[i]->puntuacion / 100]);
+			DrawText(buffer, puntuacionesFlotantes[i]->x, puntuacionesFlotantes[i]->y, 32, floatingPuntuationColors[(puntuacionesFlotantes[i]->puntuacion / 100)-1]);
 		}
 		DrawTexture(puntosIcon, posPuntos.x, posPuntos.y, WHITE);
 		char puntuacion[16];
