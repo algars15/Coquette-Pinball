@@ -14,6 +14,7 @@ class PhysicEntity;
 class Box; 
 class Circle;
 class Shape;
+class CircleSensor;
 
 class b2RevoluteJoint;
 class b2PrismaticJoint;
@@ -53,6 +54,7 @@ public:
 	Texture2D spring;
 	Texture2D springTop;
 	Texture2D springBottom;
+	Texture2D vidasTexture;
 
 	Circle* bola;
 	PhysBody* bolaToDisable;
@@ -62,6 +64,7 @@ public:
 	Box* palancaIzquierda;
 	PhysBody* unionPalancaDerecha;
 	PhysBody* unionPalancaIzquierda;
+	CircleSensor* vida;
 
 	Box* mollaTop;
 	Box* mollaBottom;
@@ -84,11 +87,13 @@ public:
 	uint32 song;
 	uint32 pasarela;
 	uint32 boingSound;
+	uint32 healSound;
 
 	bool mort;
 	bool respawn;
 	bool returnMain;
 	bool createNewBall;
+	bool hideVida;
 	int vides;
 	int puntuacio;
 
@@ -101,5 +106,8 @@ public:
 	float timerCombo;
 	float timeToCombo;
 	int comboCounter;
+	float timeToVida;
+	float timerVida;
+	Vector2 vidaSpawns[3];
 
 };

@@ -43,4 +43,5 @@ private:
 	float fadeSpeed;
 	FadeState fadeState;
 	bool toMenu;
+	Music song;
 };

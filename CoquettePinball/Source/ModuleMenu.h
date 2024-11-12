@@ -16,7 +16,7 @@ public:
 	update_status Update();
 	void LoadHightScore();
 	bool CleanUp();
-	uint32 song;
+
 
 private:
 	

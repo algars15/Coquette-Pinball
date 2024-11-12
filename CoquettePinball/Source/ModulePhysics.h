@@ -25,7 +25,8 @@ enum ObjectType
 	REBOTADOR,
 	BOLA_REBOTADORA,
 	DETECTOR_MORT,
-	PASARELA
+	PASARELA,
+	VIDA
 };
 
 // Small class to return to other modules to track position and rotation of physics bodies
@@ -61,6 +62,7 @@ public:
 	bool CleanUp();
 
 	PhysBody* CreateCircle(int x, int y, int radius, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
+	PhysBody* CreateCircleSensor(int x, int y, int radius, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
 	PhysBody* CreateRectangle(int x, int y, int width, int height, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);
 	PhysBody* CreateChain(int x, int y, const int* points, int size, b2BodyType colliderType = b2_dynamicBody, ObjectType objectType = UNKNOWN);

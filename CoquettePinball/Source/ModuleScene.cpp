@@ -37,12 +37,17 @@ bool ModuleScene::Start()
     fadeSpeed = 255.0f / 1.0f;
     fadeState = FADEIN;
     toMenu = true;
+    song = LoadMusicStream("Assets/intro song.wav");
+    SetMusicVolume(song, 0.8f);
+    PlayMusicStream(song);
 
 	return ret;
 }
 
 update_status ModuleScene::Update()
 {
+    UpdateMusicStream(song);
+
     if (state == MENU)
     {
         menu->Update();
@@ -115,6 +120,7 @@ update_status ModuleScene::Update()
 // Load assets
 bool ModuleScene::CleanUp()
 {
+    UnloadMusicStream(song);
     menu->CleanUp();
     game->CleanUp();
     delete menu;

@@ -31,9 +31,6 @@ bool ModuleMenu::Start()
 	LOG("Loading Intro assets");
 	bool ret = true;
 
-    song = App->audio->LoadFx("Assets/intro song.wav");
-
-    App->audio->PlayFx(song);
 
 	return ret;
 }

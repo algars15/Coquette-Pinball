@@ -87,6 +87,35 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, b2BodyType colli
 	list_physBodys.push_back(pbody);
 	return pbody;
 }
+PhysBody* ModulePhysics::CreateCircleSensor(int x, int y, int radius, b2BodyType colliderType, ObjectType objectType)
+{
+	PhysBody* pbody = new PhysBody();
+
+
+	b2BodyDef body;
+	body.type = colliderType;
+	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	body.userData.pointer = reinterpret_cast<uintptr_t>(pbody);
+
+	b2Body* b = world->CreateBody(&body);
+
+	b2CircleShape shape;
+	shape.m_radius = PIXEL_TO_METERS(radius);
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	fixture.density = 1.0f;
+	fixture.isSensor = true;
+
+	b->CreateFixture(&fixture);
+
+	pbody->body = b;
+	pbody->width = pbody->height = radius;
+	pbody->objectType = objectType;
+
+	list_physBodys.push_back(pbody);
+	return pbody;
+}
+
 
 PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, b2BodyType colliderType, ObjectType objectType)
 {

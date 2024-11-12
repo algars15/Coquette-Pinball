@@ -4,6 +4,7 @@
 #include "ModuleGame.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
+#include "ModuleWindow.h"
 #include "ModuleUI.h"
 #include "fstream"
 
@@ -59,6 +60,38 @@ public:
 			DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
 		}
 		
+	}
+
+private:
+	Texture2D texture;
+	bool draw;
+};
+
+class CircleSensor : public PhysicEntity
+{
+public:
+	CircleSensor(ModulePhysics* physics, int _x, int _y, int radious, Module* _listener, Texture2D _texture, bool _draw = true, ObjectType objectType = UNKNOWN, b2BodyType colliderType = b2_dynamicBody)
+		: PhysicEntity(physics->CreateCircleSensor(_x, _y, radious, colliderType, objectType), _listener)
+		, texture(_texture), draw(_draw)
+	{
+
+	}
+
+	void Update() override
+	{
+		int x, y;
+		body->GetPhysicPosition(x, y);
+		if (draw)
+		{
+			Vector2 position{ (float)x, (float)y };
+			float scale = 1.0f;
+			Rectangle source = { 0.0f, 0.0f, (float)texture.width, (float)texture.height };
+			Rectangle dest = { position.x, position.y, (float)texture.width * scale, (float)texture.height * scale };
+			Vector2 origin = { (float)texture.width / 2.0f, (float)texture.height / 2.0f };
+			float rotation = body->GetRotation() * RAD2DEG;
+			DrawTexturePro(texture, source, dest, origin, rotation, WHITE);
+		}
+
 	}
 
 private:
@@ -147,8 +180,8 @@ bool ModuleGame::Start()
 	palanca_invertida = LoadTexture("Assets/palanca_inverted.png");
 	spring = LoadTexture("Assets/Spring.png");
 	pimball_map2 = LoadTexture("Assets/map2.png");
+	vidasTexture = LoadTexture("Assets/Vidas1.png");
 	
-	//bonus_fx = App->audio->LoadFx("Assets/bonus.wav");
 	springSound = App-> audio->LoadFx("Assets/springy.wav");
 	flipperSound = App-> audio->LoadFx("Assets/flipper.wav");
 	bouncerSound = App-> audio->LoadFx("Assets/bonus.wav");
@@ -158,6 +191,7 @@ bool ModuleGame::Start()
 	pasarela = App-> audio->LoadFx("Assets/magic.wav");
 	newBallSound = App-> audio->LoadFx("Assets/new-ball.wav");
 	boingSound = App-> audio->LoadFx("Assets/boing.wav");
+	healSound = App-> audio->LoadFx("Assets/heal.wav");
 	
 	ui = new ModuleUI(App);
 	ui->Start();
@@ -167,6 +201,10 @@ bool ModuleGame::Start()
 	startPos = { 465, 310 };
 	mollaLliberada = true;
 	timeToCombo = 5;
+	timeToVida = 30;
+	vidaSpawns[0] = { 225,250 };
+	vidaSpawns[1] = { 45,265 };
+	vidaSpawns[2] = { 415,260 };
 
 	//MAPA
 	int map[82] = {
@@ -337,7 +375,7 @@ bool ModuleGame::Start()
 	160, 540,
 	};
 
-
+	//MAP
 	entities.emplace_back(new Shape(App->physics, 0, 0, map, 82, this, pimball_map, true));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map1, 36, this, pimball_map, false));
 	entities.emplace_back(new Shape(App->physics, 0, 0, map2, 42, this, pimball_map, false));
@@ -353,6 +391,7 @@ bool ModuleGame::Start()
 	App->physics->CreateCircle(296, 168, 13, b2_staticBody, BOLA_REBOTADORA);
 	App->physics->CreateCircle(232, 88, 13, b2_staticBody, BOLA_REBOTADORA);
 	
+	//SENSOR
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT + 100, SCREEN_WIDTH, 50, b2_staticBody, DETECTOR_MORT);
 	sensor = App->physics->CreateRectangleSensor(200, 375, 30, 2, b2_staticBody, PASARELA);
 	sensor = App->physics->CreateRectangleSensor(245, 375, 30, 2, b2_staticBody, PASARELA);
@@ -394,13 +433,17 @@ bool ModuleGame::Start()
 		bolasExtras.emplace_back(extraBall);
 	}
 	
-
+	//VIDAS
+	vida = new CircleSensor(App->physics, startPos.x, startPos.y, vidasTexture.width / 2, this, vidasTexture, true, VIDA);
+	vida->body->body->SetGravityScale(0);
+	entities.emplace_back(vida);
 
 	return ret;
 }
 
 void ModuleGame::RestartGame()
 {
+	timerVida = timeToVida;
 	puntuacio = 0;
 	mort = false;
 	respawn = false;
@@ -418,6 +461,10 @@ void ModuleGame::RestartGame()
 	}
 	bolaToDisable = nullptr;
 	bolaToEnable = nullptr;
+	
+	vida->body->body->SetTransform({ PIXEL_TO_METERS(-200),PIXEL_TO_METERS(-200) }, 0);
+	vida->body->body->SetEnabled(false);
+	hideVida = false;
 }
 
 
@@ -482,6 +529,26 @@ update_status ModuleGame::Update()
 	if (timerCombo <= 0)
 	{
 		comboCounter = 0;
+	}
+
+	timerVida -= GetFrameTime();
+	if (timerVida < 0 && !vida->body->body->IsEnabled())
+	{
+		int randomSpawn = GetRandomValue(0, 2);
+		vida->body->body->SetEnabled(true);
+		vida->body->body->SetLinearVelocity({ 0,0 });
+		vida->body->body->SetAngularVelocity({ 0 });
+		vida->body->body->SetTransform({ PIXEL_TO_METERS(vidaSpawns[randomSpawn].x),PIXEL_TO_METERS(vidaSpawns[randomSpawn].y) }, 0);
+	}
+
+	if (hideVida)
+	{
+		hideVida = false;
+		vides++;
+		App->audio->PlayFx(healSound);
+		vida->body->body->SetTransform({ PIXEL_TO_METERS(-200),PIXEL_TO_METERS(-200) }, 0);
+		vida->body->body->SetEnabled(false);
+		timerVida = timeToVida;
 	}
 
 	if (bolaToDisable != nullptr)
@@ -671,6 +738,11 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 				App->audio->PlayFx(fallSound);
 
 				break;
+			case VIDA:
+				hideVida = true;
+
+				break;
+		
 			default:
 				break;
 			}
