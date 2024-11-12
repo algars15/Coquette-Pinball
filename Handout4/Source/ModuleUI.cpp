@@ -25,9 +25,9 @@ bool ModuleUI::Start()
 	LOG("Loading Intro assets"); 
 	vidasIcon = LoadTexture("Assets/Vidas.png");
 	puntosIcon = LoadTexture("Assets/Puntos.png");
+	loseScreen = LoadTexture("Assets/lose_screen.png");
 	posVidas = { 10, 50 };
 	posPuntos = {10, 10};
-	posDerrota = { 170, 300 };
 	bool ret = true;
 
 	floatingPuntuationColors[0] = DARKBLUE;      
@@ -91,23 +91,23 @@ void ModuleUI::Draw(int puntuation, int lives, bool mort)
 	}
 	else
 	{
-		char textoMuerte[16];
-		sprintf_s(textoMuerte, "You lost");
-		DrawText(textoMuerte, posDerrota.x, posDerrota.y, 32, BLACK);
+		DrawTexture(loseScreen, 0, 0, WHITE);
 
 		char textoPuntuacion[30];
-		sprintf_s(textoPuntuacion, "Your puntuation : %i", puntuation);
-		DrawText(textoPuntuacion, posDerrota.x - 80, posDerrota.y + 40, 32, BLACK);
-
-		char textoSpace[50];
-		sprintf_s(textoSpace, "Press space to return\n         main menu");
-		DrawText(textoSpace, posDerrota.x - 110, posDerrota.y + 200, 32, BLACK);
+		sprintf_s(textoPuntuacion, "Score : %i", puntuation);
+		DrawText(textoPuntuacion, App->window->GetWidth()/2-MeasureText(textoPuntuacion,32)/2, 600, 32, BLACK);
 	}
 }
 
 
 bool ModuleUI::CleanUp()
 {
+	for (auto it = puntuacionesFlotantes.rbegin(); it != puntuacionesFlotantes.rend(); ++it)
+	{
+		PuntuacionFlotante* item = *it;
+		delete item;
+	}
+
 	LOG("Unloading Intro scene");
 
 	return true;

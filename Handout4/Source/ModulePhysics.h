@@ -4,6 +4,7 @@
 #include "Globals.h"
 
 #include "box2d.h"
+#include <vector>
 
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y -7.0f
@@ -67,16 +68,14 @@ public:
 	b2RevoluteJoint* CreateRevoluteJoint(PhysBody* bodyA, PhysBody* bodyB, b2Vec2 anchor, b2Vec2 angle = b2Vec2_zero);
 	b2PrismaticJoint* CreatePrismaticJoint(PhysBody* bodyA, int p1X, int p2X, int p1Y, int p2Y);
 
-	void HandleMouseJoint();
-	bool IsDebug() const { return debug; }
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
 
 private:
 
+	std::vector<PhysBody*> list_physBodys;
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;
 	b2Body* ground;
-	b2Body* selected_body;
 };

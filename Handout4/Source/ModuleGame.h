@@ -32,6 +32,7 @@ public:
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal);
 	void UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right);
 	bool GetReturnMain();
+	void SaveGame(int hightScore);
 	void RestartGame();
 
 public:
@@ -54,6 +55,9 @@ public:
 	Texture2D springBottom;
 
 	Circle* bola;
+	PhysBody* bolaToDisable;
+	PhysBody* bolaToEnable;
+	std::vector<Circle*> bolasExtras;
 	Box* palancaDerecha;
 	Box* palancaIzquierda;
 	PhysBody* unionPalancaDerecha;
@@ -74,6 +78,12 @@ public:
 	uint32 springSound;
 	uint32 flipperSound;
 	uint32 bouncerSound;
+	uint32 hitSound;
+	uint32 fallSound;
+	uint32 newBallSound;
+	uint32 song;
+	uint32 pasarela;
+	uint32 boingSound;
 
 	bool mort;
 	bool respawn;

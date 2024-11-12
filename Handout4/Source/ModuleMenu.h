@@ -14,10 +14,12 @@ public:
 
 	bool Start();
 	update_status Update();
+	void LoadHightScore();
 	bool CleanUp();
+	uint32 song;
 
 private:
 	
 	Texture2D menuTexture;
-	Texture2D loseTexture;
+	int hightScore;
 };

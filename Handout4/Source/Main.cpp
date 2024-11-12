@@ -1,8 +1,10 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include "Application.h"
 #include "Globals.h"
-
 #include "raylib.h"
-
 #include <stdlib.h>
 
 enum main_states
@@ -82,6 +84,7 @@ int main(int argc, char ** argv)
 	}
 
 	delete App;
+	_CrtDumpMemoryLeaks();
 	LOG("Exiting game '%s'...\n", TITLE);
 	return main_return;
 }

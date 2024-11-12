@@ -18,7 +18,7 @@ bool ModuleRender::Init()
 {
 	LOG("Creating Renderer context");
 	bool ret = true;
-    bool debug = false;
+    debug = false;
 
 	return ret;
 }
@@ -33,8 +33,7 @@ update_status ModuleRender::PreUpdate()
 update_status ModuleRender::Update()
 {
     ClearBackground(background);
-    if (IsKeyPressed(KEY_F1))
-    {
+    if (IsKeyPressed(KEY_F1)) {
         debug = !debug;
     }
 
