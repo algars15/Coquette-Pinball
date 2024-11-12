@@ -22,4 +22,5 @@ private:
 	
 	Texture2D menuTexture;
 	int hightScore;
+	int previousScore;
 };

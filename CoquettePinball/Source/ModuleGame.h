@@ -32,7 +32,7 @@ public:
 	void OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal);
 	void UpdateFlipper(b2RevoluteJoint* joint, bool isPressed, bool right);
 	bool GetReturnMain();
-	void SaveGame(int hightScore);
+	void SaveGame();
 	void RestartGame();
 
 public:

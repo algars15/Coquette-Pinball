@@ -508,7 +508,7 @@ update_status ModuleGame::Update()
 		respawn = false;
 		if (vides <= 0) {
 			mort = true;
-			SaveGame(puntuacio);
+			SaveGame();
 		}
 
 		else {
@@ -678,34 +678,35 @@ void ModuleGame::OnCollision(PhysBody* bodyA, PhysBody* bodyB, Vector2 normal)
 	}
 }
 
-void ModuleGame::SaveGame(int hightScore) {
+void ModuleGame::SaveGame() {
 	
 	int highScore = 0;
+	int previousScore;
 	std::ifstream file("HighScore.txt");
 
 	if (file.is_open()) {
-		file >> highScore;
+		file >> highScore >> previousScore;
 		file.close();
 	}
 	else {
 
 		std::ofstream newFile("HighScore.txt");
-		newFile << "0" << std::endl;  
+		newFile << "0\n0" << std::endl;
 		newFile.close();
 	}
 	
-	if (puntuacio > highScore)
-	{
-		TraceLog(LOG_INFO, "Guardando nuevo maximo puntuaje.");
-		std::ofstream file("HighScore.txt");
+	previousScore = puntuacio;
+	highScore = puntuacio > highScore ? puntuacio : highScore;
 
-		if (file.is_open()) {
-			file << puntuacio << std::endl;
-			file.close();
-		}
-		else {
-			TraceLog(LOG_INFO, "Error al guardar el archivo de puntuaje.");
-		}
+	TraceLog(LOG_INFO, "Guardando puntuajes.");
+	std::ofstream fileOpen("HighScore.txt");
+
+	if (fileOpen.is_open()) {
+		fileOpen << highScore << "\n" << previousScore << std::endl;
+		fileOpen.close();
+	}
+	else {
+		TraceLog(LOG_INFO, "Error al guardar el archivo de puntuaje.");
 	}
 }
 

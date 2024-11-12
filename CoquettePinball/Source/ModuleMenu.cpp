@@ -42,9 +42,13 @@ update_status ModuleMenu::Update()
 {
 	DrawTexture(menuTexture, 0, 0, WHITE);
 
+    char textoPreviousScore[50];
+    sprintf_s(textoPreviousScore, "PS: %d", previousScore);
+    DrawText(textoPreviousScore, App->window->GetWidth() / 2 - MeasureText(textoPreviousScore, 32) / 2, 560, 32, WHITE);
+
     char textoHighScore[50];
     sprintf_s(textoHighScore, "HS: %d", hightScore);
-    DrawText(textoHighScore, App->window->GetWidth()/2-MeasureText(textoHighScore,32) / 2, 600, 32, WHITE);
+    DrawText(textoHighScore, App->window->GetWidth()/2-MeasureText(textoHighScore,32) / 2, 600, 32, GOLD);
     
 	return UPDATE_CONTINUE;
 }
@@ -56,15 +60,14 @@ void ModuleMenu::LoadHightScore() {
     
     if (!file.is_open()) {
         std::ofstream newFile("HighScore.txt");  
-        newFile << "0" << std::endl;  
+        newFile << "0\n0" << std::endl;
         newFile.close();  
         TraceLog(LOG_INFO, "Archivo de puntaje no encontrado. Se ha creado uno nuevo...");
         hightScore = 0;
     }
     else {
         
-
-        file >> hightScore;
+        file >> hightScore >> previousScore;
         if (file.fail()) {
             
             TraceLog(LOG_INFO, "Error al leer el archivo. Estableciendo el puntaje a 0.");
